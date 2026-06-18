@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#147d70">
+  <meta name="description" content="毎日の収支を端末内に記録できるシンプルな収支管理アプリ">
+  <title>まいにち収支メモ</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <p class="eyebrow">PLAYFUL BALANCE TRACKER</p>
+      <h1>まいにち収支メモ</h1>
+      <p>使った金額と戻った金額を、落ち着いて記録。</p>
+    </header>
+
+    <section id="secretary-card" class="secretary-card state-normal" aria-labelledby="secretary-title">
+      <div class="secretary-avatar" aria-hidden="true">
+        <span id="secretary-face" class="secretary-face">🙂</span>
+        <span id="secretary-outfit" class="secretary-outfit">👔</span>
+      </div>
+      <div class="secretary-content">
+        <div class="secretary-heading">
+          <h2 id="secretary-title">秘書のミドリさん</h2>
+          <span id="secretary-status" class="status-badge">通常</span>
+        </div>
+        <p id="secretary-line" class="secretary-line" aria-live="polite">今日も事実を淡々と記録しましょう。</p>
+      </div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="summary-title">
+      <h2 id="summary-title" class="section-title">収支サマリー</h2>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span>今日</span>
+          <strong id="today-balance">¥0</strong>
+        </article>
+        <article class="summary-card">
+          <span>今月</span>
+          <strong id="month-balance">¥0</strong>
+        </article>
+        <article class="summary-card summary-card-total">
+          <span>累計</span>
+          <strong id="total-balance">¥0</strong>
+        </article>
+      </div>
+      <div class="stats-card">
+        <span>勝ち <strong id="win-count">0</strong>回</span>
+        <span>負け <strong id="loss-count">0</strong>回</span>
+        <span>勝率 <strong id="win-rate">0.0</strong>%</span>
+      </div>
+    </section>
+
+    <section class="card form-section" aria-labelledby="form-title">
+      <h2 id="form-title" class="section-title">収支を記録</h2>
+      <form id="balance-form">
+        <div class="form-grid">
+          <label>
+            日付
+            <input id="date" name="date" type="date" required>
+          </label>
+          <label>
+            種別
+            <select id="type" name="type" required>
+              <option value="パチンコ">パチンコ</option>
+              <option value="スロット">スロット</option>
+              <option value="競馬">競馬</option>
+              <option value="その他">その他</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          場所・店舗名
+          <input id="place" name="place" type="text" maxlength="50" placeholder="例：駅前店">
+        </label>
+        <div class="form-grid money-grid">
+          <label>
+            投資金額
+            <span class="money-input"><span>¥</span><input id="investment" name="investment" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></span>
+          </label>
+          <label>
+            回収金額
+            <span class="money-input"><span>¥</span><input id="return-amount" name="returnAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></span>
+          </label>
+        </div>
+        <div class="difference-preview">
+          今回の差額 <strong id="difference-preview">¥0</strong>
+        </div>
+        <label>
+          メモ
+          <textarea id="memo" name="memo" rows="3" maxlength="200" placeholder="振り返りをひとこと"></textarea>
+        </label>
+        <button class="primary-button" type="submit">この収支を保存</button>
+      </form>
+    </section>
+
+    <section class="history-section" aria-labelledby="history-title">
+      <div class="section-heading">
+        <h2 id="history-title" class="section-title">最近の履歴</h2>
+        <span id="record-count" class="record-count">0件</span>
+      </div>
+      <div id="history-list" class="history-list"></div>
+      <p id="empty-message" class="empty-message">まだ記録がありません。最初の収支を入力しましょう。</p>
+    </section>
+
+    <footer>
+      <button id="delete-all-button" class="danger-button" type="button">すべてのデータを削除</button>
+      <p>記録はこの端末のブラウザ内にのみ保存されます。</p>
+    </footer>
+  </main>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
