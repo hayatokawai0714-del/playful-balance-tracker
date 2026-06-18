@@ -46,39 +46,130 @@ button { cursor: pointer; }
 }
 
 .secretary-card {
-  --character-bg: linear-gradient(135deg, #ddf3ef, #bde7df);
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  overflow: hidden;
-  min-height: 150px;
-  padding: 18px;
-  background: var(--character-bg);
-  transition: background 0.3s ease;
-}
-
-.secretary-avatar {
+  --character-bg: linear-gradient(145deg, #eaf8f5, #c9ebe4);
+  --character-accent: #177e70;
   position: relative;
-  display: grid;
-  flex: 0 0 92px;
-  place-items: center;
-  height: 112px;
-  border: 2px solid rgba(255,255,255,0.85);
-  border-radius: 46px 46px 30px 30px;
-  background: rgba(255,255,255,0.72);
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  overflow: hidden;
+  min-height: 178px;
+  padding: 20px 18px 18px;
+  border-color: rgba(255,255,255,0.85);
+  background: var(--character-bg);
+  box-shadow: 0 16px 38px rgba(25, 75, 68, 0.16), inset 0 1px rgba(255,255,255,0.8);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
-.secretary-face { position: absolute; top: 12px; font-size: 3.3rem; line-height: 1; }
-.secretary-outfit { position: absolute; bottom: 5px; font-size: 2.8rem; line-height: 1; }
-.secretary-content { min-width: 0; flex: 1; }
-.secretary-heading { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
-.secretary-heading h2 { margin: 0; font-size: 1.06rem; }
-.status-badge { padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,0.78); font-size: 0.72rem; font-weight: 800; }
-.secretary-line { position: relative; margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.82); font-size: 0.9rem; font-weight: 600; }
 
-.secretary-card.state-big-win { --character-bg: linear-gradient(135deg, #fff0b7, #ffd783); }
-.secretary-card.state-positive { --character-bg: linear-gradient(135deg, #d9f6e7, #aee7c8); }
-.secretary-card.state-negative { --character-bg: linear-gradient(135deg, #e9eef5, #cddbea); }
-.secretary-card.state-big-loss { --character-bg: linear-gradient(135deg, #eee8f3, #d8cce2); }
+.secretary-card::after {
+  position: absolute;
+  right: -30px;
+  bottom: -60px;
+  width: 150px;
+  height: 150px;
+  border: 28px solid rgba(255,255,255,0.22);
+  border-radius: 50%;
+  content: "";
+}
+
+.secretary-portrait {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 108px;
+  height: 142px;
+  filter: drop-shadow(0 8px 8px rgba(48,70,66,0.16));
+}
+.secretary-hair {
+  position: absolute;
+  top: 2px;
+  left: 18px;
+  width: 75px;
+  height: 86px;
+  border-radius: 44px 44px 30px 30px;
+  background: linear-gradient(135deg, #314840, #17302b 75%);
+}
+.secretary-hair::before {
+  position: absolute;
+  top: 5px;
+  left: 7px;
+  width: 54px;
+  height: 27px;
+  border-radius: 30px 30px 8px 20px;
+  background: #3d574f;
+  transform: rotate(-7deg);
+  content: "";
+}
+.secretary-face {
+  position: absolute;
+  z-index: 2;
+  top: 22px;
+  left: 30px;
+  width: 55px;
+  height: 55px;
+  font-size: 2.75rem;
+  line-height: 55px;
+  text-align: center;
+}
+.secretary-body {
+  position: absolute;
+  right: 4px;
+  bottom: 0;
+  left: 4px;
+  display: grid;
+  place-items: center;
+  height: 73px;
+  border: 3px solid rgba(255,255,255,0.7);
+  border-radius: 44px 44px 16px 16px;
+  background: linear-gradient(135deg, var(--character-accent), #285b54);
+}
+.secretary-outfit { font-size: 2.55rem; line-height: 1; filter: drop-shadow(0 2px rgba(0,0,0,0.08)); }
+.secretary-sparkle { position: absolute; z-index: 2; color: rgba(255,255,255,0.88); font-size: 1.25rem; }
+.sparkle-one { top: 9px; left: 10px; }
+.sparkle-two { top: 23px; left: 119px; font-size: 0.9rem; }
+.secretary-content { position: relative; z-index: 2; min-width: 0; flex: 1; padding-bottom: 3px; }
+.secretary-heading { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.secretary-heading h2 { margin: 0; font-size: 1.12rem; letter-spacing: 0.03em; }
+.secretary-role { margin: -2px 0 0; color: #506762; font-size: 0.68rem; font-weight: 700; }
+.status-badge {
+  padding: 3px 10px;
+  border: 1px solid rgba(255,255,255,0.72);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: var(--character-accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.secretary-line {
+  position: relative;
+  margin: 11px 0 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 6px 15px 15px 15px;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 5px 14px rgba(42,81,74,0.08);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+.secretary-line::before {
+  position: absolute;
+  top: 9px;
+  left: -8px;
+  border-width: 6px 9px 6px 0;
+  border-style: solid;
+  border-color: transparent rgba(255,255,255,0.9) transparent transparent;
+  content: "";
+}
+
+.secretary-card.secretary--jackpot { --character-bg: linear-gradient(145deg, #fff6cf, #ffd98b); --character-accent: #b06d19; border-color: #ffe18f; }
+.secretary-card.secretary--jackpot .secretary-sparkle { color: #fff; text-shadow: 0 0 8px #d99b21; animation: twinkle 1.8s ease-in-out infinite alternate; }
+.secretary-card.secretary--positive { --character-bg: linear-gradient(145deg, #e4faed, #afe7c8); --character-accent: #18805a; }
+.secretary-card.secretary--neutral { --character-bg: linear-gradient(145deg, #eaf8f5, #c9ebe4); --character-accent: #177e70; }
+.secretary-card.secretary--negative { --character-bg: linear-gradient(145deg, #edf2f7, #ccdbea); --character-accent: #536d88; }
+.secretary-card.secretary--danger { --character-bg: linear-gradient(145deg, #eee9f1, #d6cbdc); --character-accent: #665569; border-color: #d4c7d8; }
+.secretary-card.secretary--danger .secretary-body { background: linear-gradient(135deg, #766e78, #4d4750); }
+
+@keyframes twinkle { from { opacity: 0.55; transform: scale(0.85); } to { opacity: 1; transform: scale(1.15); } }
 
 .summary-section, .form-section, .history-section { margin-top: 24px; }
 .section-title { margin: 0 0 12px; font-size: 1.08rem; }
@@ -135,10 +226,13 @@ footer p { color: var(--muted); font-size: 0.7rem; }
 
 @media (max-width: 420px) {
   .money-grid { grid-template-columns: 1fr; }
-  .secretary-card { align-items: flex-start; }
-  .secretary-avatar { flex-basis: 78px; height: 102px; }
-  .secretary-face { font-size: 2.8rem; }
-  .secretary-outfit { font-size: 2.4rem; }
+  .secretary-card { gap: 12px; min-height: 168px; padding: 17px 13px 14px; }
+  .secretary-portrait { flex-basis: 91px; height: 128px; }
+  .secretary-hair { left: 14px; width: 66px; height: 78px; }
+  .secretary-face { top: 20px; left: 23px; font-size: 2.45rem; }
+  .secretary-body { height: 65px; }
+  .secretary-outfit { font-size: 2.25rem; }
+  .secretary-line { font-size: 0.79rem; }
 }
 
 @media (min-width: 720px) {
