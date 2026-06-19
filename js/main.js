@@ -119,9 +119,12 @@ function updateSummary(randomizeLine = false) {
   const total = sumBalance(records);
   const wins = records.filter((record) => record.balance > 0).length;
   const losses = records.filter((record) => record.balance < 0).length;
+  const balances = records.map((record) => Number(record.balance || 0));
+  const maxWin = Math.max(0, ...balances);
+  const maxLoss = Math.min(0, ...balances);
   const decided = wins + losses;
 
-  [["today-balance", todayTotal], ["month-balance", monthTotal], ["total-balance", total]].forEach(([id, value]) => {
+  [["today-balance", todayTotal], ["month-balance", monthTotal], ["total-balance", total], ["max-win", maxWin], ["max-loss", maxLoss]].forEach(([id, value]) => {
     const element = document.querySelector(`#${id}`);
     element.textContent = formatCurrency(value);
     setAmountStyle(element, value);
