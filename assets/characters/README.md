@@ -13,10 +13,10 @@
 
 | 状態 | ファイル名 |
 | --- | --- |
-| 大勝ち | `midori-jackpot.png` |
-| プラス | `midori-positive.png` |
-| 通常 | `midori-neutral.png` |
-| マイナス | `midori-negative.png` |
-| 大負け・反省会 | `midori-danger.png` |
+| 大負け（-50,000円以下） | `midori_broke.png` |
+| 負け（-10,000円〜-49,999円） | `midori_poor.png` |
+| 通常（-9,999円〜+9,999円） | `midori_normal.png` |
+| 勝ち（+10,000円〜+49,999円） | `midori_cute.png` |
+| 大勝ち（+50,000円以上） | `midori_rich.png` |
 
 画像がない、または読み込めない状態では、CSSと絵文字による簡易キャラクターが表示されます。

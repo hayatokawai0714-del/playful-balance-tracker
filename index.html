@@ -16,7 +16,7 @@
       <p>使った金額と戻った金額を、落ち着いて記録。</p>
     </header>
 
-    <section id="secretary-card" class="secretary-card secretary--neutral" aria-labelledby="secretary-title">
+    <section id="secretary-card" class="secretary-card secretary--normal" aria-labelledby="secretary-title">
       <span class="secretary-sparkle sparkle-one" aria-hidden="true">✦</span>
       <span class="secretary-sparkle sparkle-two" aria-hidden="true">✧</span>
       <div class="secretary-visual">
@@ -40,8 +40,38 @@
             <p class="secretary-role">あなたの収支を見守る秘書</p>
           </div>
         </div>
-        <p id="secretary-line" class="secretary-line" aria-live="polite">今日も事実を淡々と記録しましょう。</p>
+        <div class="dialogue-box">
+          <span class="dialogue-name">ミドリ</span>
+          <p id="secretary-line" class="secretary-line" aria-live="polite">今日も事実を淡々と記録しましょう。</p>
+        </div>
       </div>
+    </section>
+
+    <section class="game-hud" aria-label="ミドリとの関係と財布の状態">
+      <div class="meter-card">
+        <div class="meter-heading"><span>好感度</span><strong id="affection-value">50</strong></div>
+        <div class="meter-track" role="progressbar" aria-label="ミドリの好感度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+          <span id="affection-meter" class="meter-fill affection-fill" style="width: 50%"></span>
+        </div>
+        <small id="affection-label">信頼の芽</small>
+      </div>
+      <div class="meter-card">
+        <div class="meter-heading"><span>財布HP</span><strong id="wallet-hp">50</strong></div>
+        <div class="meter-track" role="progressbar" aria-label="財布HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+          <span id="wallet-meter" class="meter-fill wallet-fill" style="width: 50%"></span>
+        </div>
+        <small>今月収支から算出</small>
+      </div>
+      <button id="win-escape-button" class="win-escape-button" type="button" disabled>勝ち逃げする</button>
+    </section>
+
+    <section class="conversation-section" aria-labelledby="conversation-title">
+      <div class="section-heading compact-heading">
+        <h2 id="conversation-title">ミドリとの会話</h2>
+        <span>最新5件</span>
+      </div>
+      <div id="conversation-log" class="conversation-log" aria-live="polite"></div>
+      <p id="conversation-empty" class="conversation-empty">収支を記録すると、ミドリとの会話が始まります。</p>
     </section>
 
     <section class="summary-section" aria-labelledby="summary-title">
@@ -118,6 +148,12 @@
         </label>
         <button class="primary-button" type="submit">この収支を保存</button>
       </form>
+    </section>
+
+    <section id="choice-panel" class="choice-panel" aria-labelledby="choice-title" hidden>
+      <p class="choice-kicker">YOUR CHOICE</p>
+      <h2 id="choice-title">ミドリにどう答える？</h2>
+      <div id="choice-buttons" class="choice-buttons"></div>
     </section>
 
     <section class="history-section" aria-labelledby="history-title">

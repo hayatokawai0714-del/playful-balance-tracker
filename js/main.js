@@ -2,29 +2,51 @@
 
 const STORAGE_KEY = "playful-balance-tracker-records";
 const LAST_LINE_KEY = "playful-balance-tracker-last-line";
+const AFFECTION_KEY = "playful-balance-tracker-affection";
+const CONVERSATION_KEY = "playful-balance-tracker-conversations";
+const ESCAPE_RECORD_KEY = "playful-balance-tracker-win-escape-record";
 const MAX_VISIBLE_RECORDS = 30;
+const MAX_CONVERSATIONS = 30;
 
 const secretaryStates = {
-  bigWin: {
-    label: "大勝ち", className: "secretary--jackpot", face: "😊✨", outfit: "🎀", imagePath: "assets/characters/midori-jackpot.png",
-    lines: ["す、すごい結果ですね。褒めてあげます。でも次も冷静に。", "好調な時こそ上限確認です。浮かれすぎは禁物ですよ。", "見事なプラスです。利益を残す計画までできたら完璧です。", "今日は華やかな気分です。でも深追いはさせませんからね。", "よくできました。べ、別に私まで嬉しいわけでは……少しだけです。"]
+  rich: {
+    label: "大勝ち", className: "secretary--rich", face: "😊✨", outfit: "🎀", imagePath: "assets/characters/midori_rich.png",
+    lines: ["今月は絶好調ですね。でも、冷静に勝ちを残してこそ満点です。", "すごい数字です。べ、別に私まで嬉しいわけでは……少しだけ。", "余裕がある今こそ、使う上限をきちんと守りましょう。"]
   },
-  positive: {
-    label: "プラス", className: "secretary--positive", face: "☺️", outfit: "👔", imagePath: "assets/characters/midori-positive.png",
-    lines: ["堅実なプラスです。ちゃんと記録できて偉いですね。", "良い結果です。でも予算はいつも通り守ってくださいね。", "プラスを確認しました。無理なく終える判断も素敵です。", "ふふ、今日は褒めてあげます。次も冷静にいきましょう。", "数字は順調です。だからこそ、欲張らずに振り返りましょう。"]
+  cute: {
+    label: "勝ち", className: "secretary--cute", face: "☺️", outfit: "👔", imagePath: "assets/characters/midori_cute.png",
+    lines: ["今月はプラスです。ちゃんと記録できて偉いですね。", "良い流れですが、欲張らずに勝ちを残してくださいね。", "ふふ、今日は少しだけ褒めてあげます。次も冷静に。"]
   },
   normal: {
-    label: "通常", className: "secretary--neutral", face: "🙂", outfit: "👔", imagePath: "assets/characters/midori-neutral.png",
-    lines: ["今日も事実を淡々と記録しましょう。私が見守っています。", "収支を見える化すれば、次の判断がしやすくなりますよ。", "焦らず、決めた予算の範囲で振り返りましょう。", "記録は地味でも大切です。さぼったら、少しだけ怒りますよ。", "勝ち負けより、冷静に数字と向き合えたかが大事です。"]
+    label: "通常", className: "secretary--normal", face: "🙂", outfit: "👔", imagePath: "assets/characters/midori_normal.png",
+    lines: ["今月はほぼ均衡です。今日も事実を淡々と記録しましょう。", "勝ち負けより、冷静に数字と向き合えたかが大事です。", "記録は地味でも大切です。さぼったら、少しだけ怒りますよ。"]
   },
-  negative: {
-    label: "マイナス", className: "secretary--negative", face: "😟", outfit: "🧥", imagePath: "assets/characters/midori-negative.png",
-    lines: ["取り戻そうとしないで。今日は休む選択も必要です。", "次回の上限を先に決めて、無理のない範囲にしてください。", "マイナスを確認しました。いったん距離を置きましょう。", "少し心配です。今日はここまでにして、落ち着いてください。", "厳しく言います。生活に必要なお金には手をつけないこと。"]
+  poor: {
+    label: "負け", className: "secretary--poor", face: "😟", outfit: "🧥", imagePath: "assets/characters/midori_poor.png",
+    lines: ["今月はマイナスです。取り戻そうとせず、上限を決めましょう。", "少し心配です。今日はここまでにして休んでください。", "いったん距離を置いて、落ち着いて記録を見直しましょう。"]
   },
-  bigLoss: {
-    label: "反省会", className: "secretary--danger", face: "😠💸", outfit: "📋", imagePath: "assets/characters/midori-danger.png",
-    lines: ["反省会です。今日はここまで。追加の出費は禁止です。", "取り返そうとしないでください。まず休んで頭を冷やしましょう。", "生活費には絶対に手をつけないこと。これは秘書命令です。", "上限を見直すまでお休みです。べ、別に心配しているだけです。", "大きなマイナスです。記録を確認して、しばらく距離を置きましょう。"]
+  broke: {
+    label: "大負け", className: "secretary--broke", face: "😠💸", outfit: "📋", imagePath: "assets/characters/midori_broke.png",
+    lines: ["反省会です。追加の出費は止めて、しばらく休みましょう。", "生活費には絶対に手をつけないこと。これは秘書命令です。", "今は取り返す時ではありません。上限を見直すまでお休みです。"]
   }
+};
+
+const choicesByResult = {
+  positive: [
+    { label: "勝ち逃げする", delta: 2, response: "その判断、素敵です。勝ちを残せる人は信頼できます。" },
+    { label: "明日の軍資金にする", delta: 0, response: "予算として分けるなら、上限を必ず決めてくださいね。" },
+    { label: "もう少しだけ行く", delta: -2, response: "だめです。『もう少し』が一番危ないんですから。" }
+  ],
+  negative: [
+    { label: "素直に反省する", delta: 2, response: "素直でよろしい。今日は休んで、次の上限を決めましょう。" },
+    { label: "今日は運が悪かっただけ", delta: 0, response: "運だけで片づけず、記録を見て振り返りましょう。" },
+    { label: "明日取り返す", delta: -2, response: "その考えは危険です。明日は休むくらいでちょうどいいです。" }
+  ],
+  neutral: [
+    { label: "今日はここまでにする", delta: 2, response: "冷静な判断ですね。そういうところ、信頼しています。" },
+    { label: "記録を見直す", delta: 0, response: "いいですね。数字を見てから次を考えましょう。" },
+    { label: "次こそ勝負する", delta: -2, response: "焦りは禁物です。まず予算と上限を決めてください。" }
+  ]
 };
 
 const elements = {
@@ -43,10 +65,22 @@ const elements = {
   secretaryFace: document.querySelector("#secretary-face"),
   secretaryOutfit: document.querySelector("#secretary-outfit"),
   secretaryStatus: document.querySelector("#secretary-status"),
-  secretaryLine: document.querySelector("#secretary-line")
+  secretaryLine: document.querySelector("#secretary-line"),
+  affectionValue: document.querySelector("#affection-value"),
+  affectionMeter: document.querySelector("#affection-meter"),
+  affectionLabel: document.querySelector("#affection-label"),
+  walletHp: document.querySelector("#wallet-hp"),
+  walletMeter: document.querySelector("#wallet-meter"),
+  winEscapeButton: document.querySelector("#win-escape-button"),
+  choicePanel: document.querySelector("#choice-panel"),
+  choiceButtons: document.querySelector("#choice-buttons"),
+  conversationLog: document.querySelector("#conversation-log"),
+  conversationEmpty: document.querySelector("#conversation-empty")
 };
 
 let records = loadRecords();
+let affection = loadAffection();
+let conversations = loadConversations();
 const failedCharacterImages = new Set();
 
 elements.secretaryImage.addEventListener("load", () => {
@@ -77,6 +111,23 @@ function loadRecords() {
   }
 }
 
+function loadAffection() {
+  const saved = Number(localStorage.getItem(AFFECTION_KEY));
+  return Number.isFinite(saved) && localStorage.getItem(AFFECTION_KEY) !== null
+    ? Math.min(100, Math.max(0, saved))
+    : 50;
+}
+
+function loadConversations() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CONVERSATION_KEY) || "[]");
+    return Array.isArray(saved) ? saved.slice(-MAX_CONVERSATIONS) : [];
+  } catch (error) {
+    console.warn("会話ログを読み込めませんでした。", error);
+    return [];
+  }
+}
+
 function saveRecords() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
@@ -97,11 +148,11 @@ function updateDifference() {
   setAmountStyle(elements.difference, difference);
 }
 
-function getSecretaryState(total) {
-  if (total >= 100000) return secretaryStates.bigWin;
-  if (total > 0) return secretaryStates.positive;
-  if (total <= -100000) return secretaryStates.bigLoss;
-  if (total < 0) return secretaryStates.negative;
+function getSecretaryState(monthTotal) {
+  if (monthTotal >= 50000) return secretaryStates.rich;
+  if (monthTotal >= 10000) return secretaryStates.cute;
+  if (monthTotal <= -50000) return secretaryStates.broke;
+  if (monthTotal <= -10000) return secretaryStates.poor;
   return secretaryStates.normal;
 }
 
@@ -137,6 +188,108 @@ function updateSecretary(total, randomize = false) {
   }
 }
 
+function getAffectionLabel(value) {
+  if (value >= 80) return "特別な信頼";
+  if (value >= 60) return "親しい関係";
+  if (value >= 40) return "信頼の芽";
+  if (value >= 20) return "まだ慎重";
+  return "距離あり";
+}
+
+function updateAffectionDisplay() {
+  elements.affectionValue.textContent = affection;
+  elements.affectionMeter.style.width = `${affection}%`;
+  elements.affectionMeter.parentElement.setAttribute("aria-valuenow", affection);
+  elements.affectionLabel.textContent = getAffectionLabel(affection);
+}
+
+function getWalletHp(monthTotal) {
+  if (monthTotal >= 50000) return 100;
+  if (monthTotal >= 10000) return 75;
+  if (monthTotal <= -50000) return 5;
+  if (monthTotal <= -10000) return 25;
+  return 50;
+}
+
+function updateWalletDisplay(monthTotal) {
+  const hp = getWalletHp(monthTotal);
+  elements.walletHp.textContent = hp;
+  elements.walletMeter.style.width = `${hp}%`;
+  elements.walletMeter.parentElement.setAttribute("aria-valuenow", hp);
+}
+
+function applyAffection(delta) {
+  affection = Math.min(100, Math.max(0, affection + delta));
+  localStorage.setItem(AFFECTION_KEY, String(affection));
+  updateAffectionDisplay();
+}
+
+function addConversation(choice, response) {
+  conversations.push({
+    id: `${Date.now()}-${Math.random()}`,
+    choice,
+    response,
+    createdAt: new Date().toISOString()
+  });
+  conversations = conversations.slice(-MAX_CONVERSATIONS);
+  localStorage.setItem(CONVERSATION_KEY, JSON.stringify(conversations));
+  renderConversations();
+}
+
+function renderConversations() {
+  elements.conversationLog.replaceChildren();
+  [...conversations].slice(-5).reverse().forEach((entry) => {
+    const article = document.createElement("article");
+    article.className = "conversation-entry";
+    const text = document.createElement("p");
+    text.textContent = `ミドリ「${entry.response}」`;
+    const meta = document.createElement("small");
+    meta.textContent = entry.choice ? `あなた：${entry.choice}` : "ミドリからのメッセージ";
+    article.append(text, meta);
+    elements.conversationLog.append(article);
+  });
+  elements.conversationEmpty.hidden = conversations.length > 0;
+}
+
+function showChoices(balance) {
+  const result = balance > 0 ? "positive" : balance < 0 ? "negative" : "neutral";
+  elements.choiceButtons.replaceChildren();
+  choicesByResult[result].forEach((choice) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice-button";
+    button.textContent = choice.label;
+    button.addEventListener("click", () => {
+      const latest = getLatestRecord();
+      if (choice.label === "勝ち逃げする" && latest) {
+        localStorage.setItem(ESCAPE_RECORD_KEY, latest.id);
+      }
+      applyAffection(choice.delta);
+      elements.secretaryLine.textContent = choice.response;
+      addConversation(choice.label, choice.response);
+      elements.choicePanel.hidden = true;
+      updateWinEscapeButton();
+    });
+    elements.choiceButtons.append(button);
+  });
+  elements.choicePanel.hidden = false;
+  elements.choicePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function getLatestRecord() {
+  return records.length ? records[records.length - 1] : null;
+}
+
+function updateWinEscapeButton() {
+  const latest = getLatestRecord();
+  const claimedId = localStorage.getItem(ESCAPE_RECORD_KEY);
+  const canEscape = latest && Number(latest.balance) > 0 && claimedId !== latest.id;
+  elements.winEscapeButton.disabled = !canEscape;
+  elements.winEscapeButton.textContent = latest && Number(latest.balance) > 0 && claimedId === latest.id
+    ? "勝ち逃げ済み"
+    : "勝ち逃げする";
+}
+
 function sumBalance(items) {
   return items.reduce((sum, record) => sum + Number(record.balance || 0), 0);
 }
@@ -162,7 +315,9 @@ function updateSummary(randomizeLine = false) {
   document.querySelector("#win-count").textContent = wins;
   document.querySelector("#loss-count").textContent = losses;
   document.querySelector("#win-rate").textContent = decided ? ((wins / decided) * 100).toFixed(1) : "0.0";
-  updateSecretary(total, randomizeLine);
+  updateSecretary(monthTotal, randomizeLine);
+  updateWalletDisplay(monthTotal);
+  updateWinEscapeButton();
 }
 
 function createHistoryCard(record) {
@@ -217,6 +372,8 @@ function renderHistory() {
 function render(randomizeLine = false) {
   updateSummary(randomizeLine);
   renderHistory();
+  updateAffectionDisplay();
+  renderConversations();
 }
 
 elements.form.addEventListener("submit", (event) => {
@@ -242,6 +399,19 @@ elements.form.addEventListener("submit", (event) => {
   elements.date.value = getLocalDateString();
   updateDifference();
   render(true);
+  showChoices(returnAmount - investment);
+});
+
+elements.winEscapeButton.addEventListener("click", () => {
+  const latest = getLatestRecord();
+  if (!latest || Number(latest.balance) <= 0 || localStorage.getItem(ESCAPE_RECORD_KEY) === latest.id) return;
+  const response = "きちんと勝ちを残せましたね。今日は素直に褒めてあげます。";
+  localStorage.setItem(ESCAPE_RECORD_KEY, latest.id);
+  applyAffection(2);
+  elements.secretaryLine.textContent = response;
+  addConversation("勝ち逃げする", response);
+  elements.choicePanel.hidden = true;
+  updateWinEscapeButton();
 });
 
 elements.historyList.addEventListener("click", (event) => {
@@ -253,9 +423,16 @@ elements.historyList.addEventListener("click", (event) => {
 });
 
 elements.deleteAll.addEventListener("click", () => {
-  if (!records.length || !confirm("すべての収支データを削除します。この操作は元に戻せません。よろしいですか？")) return;
+  const hasData = records.length || conversations.length || affection !== 50;
+  if (!hasData || !confirm("すべての収支データと会話データを削除します。この操作は元に戻せません。よろしいですか？")) return;
   records = [];
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(AFFECTION_KEY);
+  localStorage.removeItem(CONVERSATION_KEY);
+  localStorage.removeItem(ESCAPE_RECORD_KEY);
+  affection = 50;
+  conversations = [];
+  elements.choicePanel.hidden = true;
   render();
 });
 
