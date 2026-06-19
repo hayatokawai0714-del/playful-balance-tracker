@@ -8,6 +8,12 @@
 
 白を基調に淡いミントをアクセントとした、スマホファーストのカードUIです。大きめの角丸、繊細な枠線、控えめな影で、秘書カード・収支サマリー・入力フォーム・履歴を見やすく整理しています。
 
+### 秘書画像の差し替え
+
+`assets/characters/` に状態別の透過PNGを配置すると、累計収支に合わせて自動で画像が切り替わります。ファイル名と推奨サイズは [assets/characters/README.md](assets/characters/README.md) を参照してください。画像がない場合は、CSSと絵文字の簡易表示に自動で戻ります。
+
+画像素材を使用する際は、著作権と配布元の利用規約を確認し、利用許諾のある素材だけを配置してください。
+
 ## 使用技術
 
 - HTML
@@ -24,6 +30,9 @@ playful-balance-tracker/
 │   └── style.css
 ├── js/
 │   └── main.js
+├── assets/
+│   └── characters/
+│       └── README.md
 ├── README.md
 └── .gitignore
 ```

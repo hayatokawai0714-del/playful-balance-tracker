@@ -6,23 +6,23 @@ const MAX_VISIBLE_RECORDS = 30;
 
 const secretaryStates = {
   bigWin: {
-    label: "大勝ち", className: "secretary--jackpot", face: "😊✨", outfit: "🎀",
+    label: "大勝ち", className: "secretary--jackpot", face: "😊✨", outfit: "🎀", imagePath: "assets/characters/midori-jackpot.png",
     lines: ["す、すごい結果ですね。褒めてあげます。でも次も冷静に。", "好調な時こそ上限確認です。浮かれすぎは禁物ですよ。", "見事なプラスです。利益を残す計画までできたら完璧です。", "今日は華やかな気分です。でも深追いはさせませんからね。", "よくできました。べ、別に私まで嬉しいわけでは……少しだけです。"]
   },
   positive: {
-    label: "プラス", className: "secretary--positive", face: "☺️", outfit: "👔",
+    label: "プラス", className: "secretary--positive", face: "☺️", outfit: "👔", imagePath: "assets/characters/midori-positive.png",
     lines: ["堅実なプラスです。ちゃんと記録できて偉いですね。", "良い結果です。でも予算はいつも通り守ってくださいね。", "プラスを確認しました。無理なく終える判断も素敵です。", "ふふ、今日は褒めてあげます。次も冷静にいきましょう。", "数字は順調です。だからこそ、欲張らずに振り返りましょう。"]
   },
   normal: {
-    label: "通常", className: "secretary--neutral", face: "🙂", outfit: "👔",
+    label: "通常", className: "secretary--neutral", face: "🙂", outfit: "👔", imagePath: "assets/characters/midori-neutral.png",
     lines: ["今日も事実を淡々と記録しましょう。私が見守っています。", "収支を見える化すれば、次の判断がしやすくなりますよ。", "焦らず、決めた予算の範囲で振り返りましょう。", "記録は地味でも大切です。さぼったら、少しだけ怒りますよ。", "勝ち負けより、冷静に数字と向き合えたかが大事です。"]
   },
   negative: {
-    label: "マイナス", className: "secretary--negative", face: "😟", outfit: "🧥",
+    label: "マイナス", className: "secretary--negative", face: "😟", outfit: "🧥", imagePath: "assets/characters/midori-negative.png",
     lines: ["取り戻そうとしないで。今日は休む選択も必要です。", "次回の上限を先に決めて、無理のない範囲にしてください。", "マイナスを確認しました。いったん距離を置きましょう。", "少し心配です。今日はここまでにして、落ち着いてください。", "厳しく言います。生活に必要なお金には手をつけないこと。"]
   },
   bigLoss: {
-    label: "反省会", className: "secretary--danger", face: "😠💸", outfit: "📋",
+    label: "反省会", className: "secretary--danger", face: "😠💸", outfit: "📋", imagePath: "assets/characters/midori-danger.png",
     lines: ["反省会です。今日はここまで。追加の出費は禁止です。", "取り返そうとしないでください。まず休んで頭を冷やしましょう。", "生活費には絶対に手をつけないこと。これは秘書命令です。", "上限を見直すまでお休みです。べ、別に心配しているだけです。", "大きなマイナスです。記録を確認して、しばらく距離を置きましょう。"]
   }
 };
@@ -38,6 +38,8 @@ const elements = {
   recordCount: document.querySelector("#record-count"),
   deleteAll: document.querySelector("#delete-all-button"),
   secretaryCard: document.querySelector("#secretary-card"),
+  secretaryImage: document.querySelector("#secretary-character-image"),
+  secretaryFallback: document.querySelector("#secretary-fallback"),
   secretaryFace: document.querySelector("#secretary-face"),
   secretaryOutfit: document.querySelector("#secretary-outfit"),
   secretaryStatus: document.querySelector("#secretary-status"),
@@ -45,6 +47,20 @@ const elements = {
 };
 
 let records = loadRecords();
+const failedCharacterImages = new Set();
+
+elements.secretaryImage.addEventListener("load", () => {
+  elements.secretaryImage.hidden = false;
+  elements.secretaryFallback.hidden = true;
+});
+
+elements.secretaryImage.addEventListener("error", () => {
+  const failedPath = elements.secretaryImage.dataset.imagePath;
+  if (failedPath) failedCharacterImages.add(failedPath);
+  elements.secretaryImage.removeAttribute("src");
+  elements.secretaryImage.hidden = true;
+  elements.secretaryFallback.hidden = false;
+});
 
 function getLocalDateString(date = new Date()) {
   const offset = date.getTimezoneOffset() * 60000;
@@ -105,6 +121,20 @@ function updateSecretary(total, randomize = false) {
   elements.secretaryOutfit.textContent = state.outfit;
   elements.secretaryStatus.textContent = state.label;
   elements.secretaryLine.textContent = selectLine(state, randomize);
+  elements.secretaryImage.alt = `収支秘書 ミドリ（${state.label}）`;
+
+  if (failedCharacterImages.has(state.imagePath)) {
+    elements.secretaryImage.hidden = true;
+    elements.secretaryFallback.hidden = false;
+    return;
+  }
+
+  if (elements.secretaryImage.dataset.imagePath !== state.imagePath) {
+    elements.secretaryImage.hidden = true;
+    elements.secretaryFallback.hidden = false;
+    elements.secretaryImage.dataset.imagePath = state.imagePath;
+    elements.secretaryImage.src = state.imagePath;
+  }
 }
 
 function sumBalance(items) {
