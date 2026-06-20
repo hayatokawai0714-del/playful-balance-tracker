@@ -27,6 +27,9 @@ const elements = {
   affectionValue: document.querySelector("#affection-value"),
   affectionMeter: document.querySelector("#affection-meter"),
   affectionTrack: document.querySelector("#affection-track"),
+  affectionLabel: document.querySelector("#affection-label"),
+  catTodayMessage: document.querySelector("#cat-today-message"),
+  catStreakCount: document.querySelector("#cat-streak-count"),
   goalSetupCard: document.querySelector("#goal-setup-card"),
   goalForm: document.querySelector("#goal-form"),
   goalInput: document.querySelector("#goal-input"),
@@ -128,11 +131,16 @@ function getCatState() {
   if (daysAway >= 10) return { label: "おでかけ中", className: "is-away", emoji: "🐾" };
   if (daysAway >= 7) return { label: "かくれ中", className: "is-hidden", emoji: "🐈" };
   if (daysAway >= 3) return { label: "少し不機嫌", className: "is-grumpy", emoji: "🐈" };
-  if (affection >= 80) return { label: "すっかり仲良し", className: "", emoji: "🐈" };
-  if (affection >= 60) return { label: "待っていた", className: "", emoji: "🐈" };
-  if (affection >= 40) return { label: "興味津々", className: "", emoji: "🐈" };
-  if (affection >= 20) return { label: "様子見", className: "", emoji: "🐈" };
-  return { label: "警戒中", className: "", emoji: "🐈" };
+  const distance = getAffectionState();
+  return { label: distance.label, className: "", emoji: "🐈" };
+}
+
+function getAffectionState() {
+  if (affection >= 80) return { label: "とてもなついている", className: "distance-loving" };
+  if (affection >= 60) return { label: "なついてきた", className: "distance-close" };
+  if (affection >= 40) return { label: "慣れてきた", className: "distance-used" };
+  if (affection >= 20) return { label: "少し気になる", className: "distance-curious" };
+  return { label: "警戒中", className: "distance-wary" };
 }
 
 function getLineCandidates() {
@@ -141,13 +149,13 @@ function getLineCandidates() {
   if (daysAway >= 3) return ["……しばらく見なかったね。", "ふん。今日はいるんだ。", "少しだけ、待ってた。"];
   const todayDone = getUniqueRecordDates().includes(getLocalDate());
   const streak = getStreak();
-  if (todayDone && streak >= 7) return ["こつこつ、えらい。にゃ。", "今日も続いたね。ごろごろ。", "その調子。ここで見てる。"];
-  if (todayDone) return ["今日も頑張ったね。", "おつかれさま。にゃ。", "ちゃんと見てたよ。"];
-  if (affection >= 80) return ["今日も頑張ろうね。", "ここで待ってる。", "終わったら、なでて。"];
-  if (affection >= 60) return ["待ってたよ。", "今日は何する？", "そばにいても、いいよ。"];
-  if (affection >= 40) return ["今日は何するの？", "また記録する？", "少し気になる。"];
-  if (affection >= 20) return ["また来たの？", "……近くにいてもいい。", "何かするの？"];
-  return ["・・・", "……にゃ。", "じーっ。"];
+  if (todayDone && streak >= 7) return ["こつこつ。えらい、にゃ。", "つづいてる。ごろごろ。", "今日も、ここにいる。"];
+  if (todayDone) return ["今日もがんばったね。", "おつかれ、にゃ。", "ちゃんと見てた。"];
+  if (affection >= 80) return ["今日も、いっしょ。", "ここで待ってる。", "なでても、いいよ。"];
+  if (affection >= 60) return ["待ってたよ。", "今日は、なにする？", "となり、あいてる。"];
+  if (affection >= 40) return ["今日はなにするの？", "また、記録する？", "ここで見てる。"];
+  if (affection >= 20) return ["また来たの？", "……ちょっと近い。", "なにか、する？"];
+  return ["……だれ？", "……にゃ。", "じーっ。"];
 }
 
 function chooseCatLine(forceNew = false) {
@@ -161,12 +169,14 @@ function chooseCatLine(forceNew = false) {
 
 function renderCat(forceNewLine = false) {
   const state = getCatState();
-  elements.catCard.className = `cat-card ${state.className}`.trim();
+  const distance = getAffectionState();
+  elements.catCard.className = `cat-card ${state.className} ${distance.className}`.trim();
   elements.catStatus.textContent = state.label;
   elements.catEmoji.textContent = state.emoji;
   elements.affectionValue.textContent = affection;
   elements.affectionMeter.style.width = `${affection}%`;
   elements.affectionTrack.setAttribute("aria-valuenow", affection);
+  elements.affectionLabel.textContent = distance.label;
   elements.catLine.textContent = chooseCatLine(forceNewLine);
 }
 
@@ -190,6 +200,7 @@ function renderInventory() {
     const title = document.createElement("h3");
     title.textContent = item.name;
     const amount = document.createElement("p");
+    amount.className = "item-count";
     amount.textContent = `所持 ${count}個`;
     const button = document.createElement("button");
     button.className = "gift-button";
@@ -222,6 +233,8 @@ function renderSummary() {
   elements.todayStatus.textContent = doneToday ? "記録済み" : "未記録";
   elements.todayStatus.classList.toggle("done", doneToday);
   elements.lastRecordDate.textContent = dates.length ? dates[dates.length - 1] : "まだありません";
+  elements.catTodayMessage.textContent = doneToday ? "今日は記録済みです" : "今日はまだ記録していません";
+  elements.catStreakCount.textContent = getStreak();
 }
 
 function renderHistory() {

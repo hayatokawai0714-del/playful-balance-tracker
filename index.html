@@ -18,8 +18,12 @@
 
     <section id="cat-card" class="cat-card" aria-labelledby="cat-name">
       <div class="cat-scene">
+        <span class="room-window" aria-hidden="true"></span>
+        <span class="room-shelf" aria-hidden="true">⌂</span>
         <span class="scene-sparkle sparkle-one" aria-hidden="true">✦</span>
         <span class="scene-sparkle sparkle-two" aria-hidden="true">✧</span>
+        <span class="cat-mat" aria-hidden="true"></span>
+        <span class="cat-cushion" aria-hidden="true"></span>
         <img id="cat-image" class="cat-image" src="assets/cats/stray-cat.png" alt="茶トラの迷い猫" hidden>
         <div id="cat-fallback" class="cat-fallback" aria-hidden="true">
           <span id="cat-emoji" class="cat-emoji">🐈</span>
@@ -39,10 +43,15 @@
           <div id="affection-track" class="meter-track" role="progressbar" aria-label="猫の好感度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <span id="affection-meter" class="meter-fill"></span>
           </div>
+          <span id="affection-label" class="affection-label">警戒中</span>
         </div>
         <div class="speech-box">
           <span class="speech-name">迷い猫</span>
           <p id="cat-line" aria-live="polite">・・・</p>
+        </div>
+        <div class="cat-daily-status">
+          <span id="cat-today-message">今日はまだ記録していません</span>
+          <small>連続 <b id="cat-streak-count">0</b>日</small>
         </div>
       </div>
     </section>
@@ -85,8 +94,8 @@
       <div class="bonus-icon" aria-hidden="true">🎁</div>
       <div>
         <p class="card-kicker">DAILY BONUS</p>
-        <h2 id="bonus-title">ログインボーナス</h2>
-        <p id="bonus-message">今日のプレゼントを確認中…</p>
+        <h2 id="bonus-title">猫からの小さなおみやげ</h2>
+        <p><span id="bonus-message" class="bonus-chip">今日のプレゼントを確認中…</span></p>
       </div>
       <span class="received-badge">受取済み</span>
     </section>
