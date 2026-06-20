@@ -1,443 +1,330 @@
 "use strict";
 
-const STORAGE_KEY = "playful-balance-tracker-records";
-const LAST_LINE_KEY = "playful-balance-tracker-last-line";
-const AFFECTION_KEY = "playful-balance-tracker-affection";
-const CONVERSATION_KEY = "playful-balance-tracker-conversations";
-const ESCAPE_RECORD_KEY = "playful-balance-tracker-win-escape-record";
-const MAX_VISIBLE_RECORDS = 30;
-const MAX_CONVERSATIONS = 30;
-
-const secretaryStates = {
-  rich: {
-    label: "大勝ち", className: "secretary--rich", face: "😊✨", outfit: "🎀", imagePath: "assets/characters/midori_rich.png",
-    lines: ["今月は絶好調ですね。でも、冷静に勝ちを残してこそ満点です。", "すごい数字です。べ、別に私まで嬉しいわけでは……少しだけ。", "余裕がある今こそ、使う上限をきちんと守りましょう。"]
-  },
-  cute: {
-    label: "勝ち", className: "secretary--cute", face: "☺️", outfit: "👔", imagePath: "assets/characters/midori_cute.png",
-    lines: ["今月はプラスです。ちゃんと記録できて偉いですね。", "良い流れですが、欲張らずに勝ちを残してくださいね。", "ふふ、今日は少しだけ褒めてあげます。次も冷静に。"]
-  },
-  normal: {
-    label: "通常", className: "secretary--normal", face: "🙂", outfit: "👔", imagePath: "assets/characters/midori_normal.png",
-    lines: ["今月はほぼ均衡です。今日も事実を淡々と記録しましょう。", "勝ち負けより、冷静に数字と向き合えたかが大事です。", "記録は地味でも大切です。さぼったら、少しだけ怒りますよ。"]
-  },
-  poor: {
-    label: "負け", className: "secretary--poor", face: "😟", outfit: "🧥", imagePath: "assets/characters/midori_poor.png",
-    lines: ["今月はマイナスです。取り戻そうとせず、上限を決めましょう。", "少し心配です。今日はここまでにして休んでください。", "いったん距離を置いて、落ち着いて記録を見直しましょう。"]
-  },
-  broke: {
-    label: "大負け", className: "secretary--broke", face: "😠💸", outfit: "📋", imagePath: "assets/characters/midori_broke.png",
-    lines: ["反省会です。追加の出費は止めて、しばらく休みましょう。", "生活費には絶対に手をつけないこと。これは秘書命令です。", "今は取り返す時ではありません。上限を見直すまでお休みです。"]
-  }
+const KEYS = {
+  goal: "neko-habit-goal",
+  records: "neko-habit-records",
+  affection: "neko-habit-affection",
+  inventory: "neko-habit-inventory",
+  lastLogin: "neko-habit-last-login",
+  absenceDays: "neko-habit-absence-days",
+  dailyReward: "neko-habit-daily-reward",
+  lastLine: "neko-habit-last-line"
 };
 
-const choicesByResult = {
-  positive: [
-    { label: "勝ち逃げする", delta: 2, response: "その判断、素敵です。勝ちを残せる人は信頼できます。" },
-    { label: "明日の軍資金にする", delta: 0, response: "予算として分けるなら、上限を必ず決めてくださいね。" },
-    { label: "もう少しだけ行く", delta: -2, response: "だめです。『もう少し』が一番危ないんですから。" }
-  ],
-  negative: [
-    { label: "素直に反省する", delta: 2, response: "素直でよろしい。今日は休んで、次の上限を決めましょう。" },
-    { label: "今日は運が悪かっただけ", delta: 0, response: "運だけで片づけず、記録を見て振り返りましょう。" },
-    { label: "明日取り返す", delta: -2, response: "その考えは危険です。明日は休むくらいでちょうどいいです。" }
-  ],
-  neutral: [
-    { label: "今日はここまでにする", delta: 2, response: "冷静な判断ですね。そういうところ、信頼しています。" },
-    { label: "記録を見直す", delta: 0, response: "いいですね。数字を見てから次を考えましょう。" },
-    { label: "次こそ勝負する", delta: -2, response: "焦りは禁物です。まず予算と上限を決めてください。" }
-  ]
+const ITEMS = {
+  food: { name: "キャットフード", icon: "🥫", affection: 2, reply: "……もぐもぐ。悪くない、かも。" },
+  snack: { name: "おやつ", icon: "🐟", affection: 3, reply: "にゃ。もうひとつ、ある？" },
+  toy: { name: "おもちゃ", icon: "🧶", affection: 5, reply: "……！ ちょっとだけ遊ぶ。" }
 };
 
 const elements = {
-  form: document.querySelector("#balance-form"),
-  date: document.querySelector("#date"),
-  investment: document.querySelector("#investment"),
-  returnAmount: document.querySelector("#return-amount"),
-  difference: document.querySelector("#difference-preview"),
+  catCard: document.querySelector("#cat-card"),
+  catImage: document.querySelector("#cat-image"),
+  catFallback: document.querySelector("#cat-fallback"),
+  catEmoji: document.querySelector("#cat-emoji"),
+  catStatus: document.querySelector("#cat-status"),
+  catLine: document.querySelector("#cat-line"),
+  affectionValue: document.querySelector("#affection-value"),
+  affectionMeter: document.querySelector("#affection-meter"),
+  affectionTrack: document.querySelector("#affection-track"),
+  goalSetupCard: document.querySelector("#goal-setup-card"),
+  goalForm: document.querySelector("#goal-form"),
+  goalInput: document.querySelector("#goal-input"),
+  todayCard: document.querySelector("#today-card"),
+  currentGoal: document.querySelector("#current-goal"),
+  editGoalButton: document.querySelector("#edit-goal-button"),
+  recordForm: document.querySelector("#record-form"),
+  bonusMessage: document.querySelector("#bonus-message"),
+  inventoryList: document.querySelector("#inventory-list"),
+  streakCount: document.querySelector("#streak-count"),
+  totalDays: document.querySelector("#total-days"),
+  todayStatus: document.querySelector("#today-status"),
+  lastRecordDate: document.querySelector("#last-record-date"),
   historyList: document.querySelector("#history-list"),
   emptyMessage: document.querySelector("#empty-message"),
   recordCount: document.querySelector("#record-count"),
-  deleteAll: document.querySelector("#delete-all-button"),
-  secretaryCard: document.querySelector("#secretary-card"),
-  secretaryImage: document.querySelector("#secretary-character-image"),
-  secretaryFallback: document.querySelector("#secretary-fallback"),
-  secretaryFace: document.querySelector("#secretary-face"),
-  secretaryOutfit: document.querySelector("#secretary-outfit"),
-  secretaryStatus: document.querySelector("#secretary-status"),
-  secretaryLine: document.querySelector("#secretary-line"),
-  affectionValue: document.querySelector("#affection-value"),
-  affectionMeter: document.querySelector("#affection-meter"),
-  affectionLabel: document.querySelector("#affection-label"),
-  walletHp: document.querySelector("#wallet-hp"),
-  walletMeter: document.querySelector("#wallet-meter"),
-  winEscapeButton: document.querySelector("#win-escape-button"),
-  choicePanel: document.querySelector("#choice-panel"),
-  choiceButtons: document.querySelector("#choice-buttons"),
-  conversationLog: document.querySelector("#conversation-log"),
-  conversationEmpty: document.querySelector("#conversation-empty")
+  resetButton: document.querySelector("#reset-button")
 };
 
-let records = loadRecords();
-let affection = loadAffection();
-let conversations = loadConversations();
-const failedCharacterImages = new Set();
+let goal = localStorage.getItem(KEYS.goal) || "";
+const loadedRecords = loadJson(KEYS.records, []);
+const loadedInventory = loadJson(KEYS.inventory, {});
+let records = Array.isArray(loadedRecords) ? loadedRecords : [];
+let inventory = { food: 0, snack: 0, toy: 0, ...(loadedInventory && typeof loadedInventory === "object" ? loadedInventory : {}) };
+let affection = clamp(Number(localStorage.getItem(KEYS.affection)) || 0, 0, 100);
+const previousLogin = localStorage.getItem(KEYS.lastLogin);
+const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
+let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
 
-elements.secretaryImage.addEventListener("load", () => {
-  elements.secretaryImage.hidden = false;
-  elements.secretaryFallback.hidden = true;
-});
+function loadJson(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "null");
+    return value ?? fallback;
+  } catch (error) {
+    console.warn(`${key}を読み込めませんでした。`, error);
+    return fallback;
+  }
+}
 
-elements.secretaryImage.addEventListener("error", () => {
-  const failedPath = elements.secretaryImage.dataset.imagePath;
-  if (failedPath) failedCharacterImages.add(failedPath);
-  elements.secretaryImage.removeAttribute("src");
-  elements.secretaryImage.hidden = true;
-  elements.secretaryFallback.hidden = false;
-});
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
 
-function getLocalDateString(date = new Date()) {
+function getLocalDate(date = new Date()) {
   const offset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 }
 
-function loadRecords() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(saved) ? saved : [];
-  } catch (error) {
-    console.warn("保存データを読み込めませんでした。", error);
-    return [];
+function dateFromLocalString(value) {
+  return new Date(`${value}T00:00:00`);
+}
+
+function daysBetween(from, to) {
+  return Math.max(0, Math.round((dateFromLocalString(to) - dateFromLocalString(from)) / 86400000));
+}
+
+function saveCoreData() {
+  localStorage.setItem(KEYS.records, JSON.stringify(records));
+  localStorage.setItem(KEYS.inventory, JSON.stringify(inventory));
+  localStorage.setItem(KEYS.affection, String(affection));
+  localStorage.setItem(KEYS.absenceDays, String(daysAway));
+}
+
+function grantLoginBonus() {
+  const today = getLocalDate();
+  let reward = loadJson(KEYS.dailyReward, null);
+  if (previousLogin !== today) {
+    const itemKeys = Object.keys(ITEMS);
+    const itemKey = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+    inventory[itemKey] = Number(inventory[itemKey] || 0) + 1;
+    reward = { date: today, itemKey };
+    localStorage.setItem(KEYS.dailyReward, JSON.stringify(reward));
+    localStorage.setItem(KEYS.lastLogin, today);
+    saveCoreData();
   }
+  const item = reward && reward.date === today ? ITEMS[reward.itemKey] : null;
+  elements.bonusMessage.textContent = item ? `${item.icon} ${item.name}を1個もらいました。` : "今日のボーナスは受け取り済みです。";
 }
 
-function loadAffection() {
-  const saved = Number(localStorage.getItem(AFFECTION_KEY));
-  return Number.isFinite(saved) && localStorage.getItem(AFFECTION_KEY) !== null
-    ? Math.min(100, Math.max(0, saved))
-    : 50;
+function getUniqueRecordDates() {
+  return [...new Set(records.map((record) => record.date))].sort();
 }
 
-function loadConversations() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(CONVERSATION_KEY) || "[]");
-    return Array.isArray(saved) ? saved.slice(-MAX_CONVERSATIONS) : [];
-  } catch (error) {
-    console.warn("会話ログを読み込めませんでした。", error);
-    return [];
+function getStreak() {
+  const dates = getUniqueRecordDates();
+  if (!dates.length) return 0;
+  const today = getLocalDate();
+  const latest = dates[dates.length - 1];
+  if (daysBetween(latest, today) > 1) return 0;
+  let streak = 1;
+  for (let index = dates.length - 1; index > 0; index -= 1) {
+    if (daysBetween(dates[index - 1], dates[index]) !== 1) break;
+    streak += 1;
   }
+  return streak;
 }
 
-function saveRecords() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+function getCatState() {
+  if (daysAway >= 10) return { label: "おでかけ中", className: "is-away", emoji: "🐾" };
+  if (daysAway >= 7) return { label: "かくれ中", className: "is-hidden", emoji: "🐈" };
+  if (daysAway >= 3) return { label: "少し不機嫌", className: "is-grumpy", emoji: "🐈" };
+  if (affection >= 80) return { label: "すっかり仲良し", className: "", emoji: "🐈" };
+  if (affection >= 60) return { label: "待っていた", className: "", emoji: "🐈" };
+  if (affection >= 40) return { label: "興味津々", className: "", emoji: "🐈" };
+  if (affection >= 20) return { label: "様子見", className: "", emoji: "🐈" };
+  return { label: "警戒中", className: "", emoji: "🐈" };
 }
 
-function formatCurrency(value) {
-  const sign = value > 0 ? "+" : value < 0 ? "−" : "";
-  return `${sign}¥${Math.abs(value).toLocaleString("ja-JP")}`;
+function getLineCandidates() {
+  if (daysAway >= 10) return ["……また来たら、顔を出すかも。", "足音がしたら、戻ってくるかも。", "少し遠くから、見てる。"];
+  if (daysAway >= 7) return ["……物陰から、ちらり。", "まだ、ここにいるよ。", "静かになったら出る。"];
+  if (daysAway >= 3) return ["……しばらく見なかったね。", "ふん。今日はいるんだ。", "少しだけ、待ってた。"];
+  const todayDone = getUniqueRecordDates().includes(getLocalDate());
+  const streak = getStreak();
+  if (todayDone && streak >= 7) return ["こつこつ、えらい。にゃ。", "今日も続いたね。ごろごろ。", "その調子。ここで見てる。"];
+  if (todayDone) return ["今日も頑張ったね。", "おつかれさま。にゃ。", "ちゃんと見てたよ。"];
+  if (affection >= 80) return ["今日も頑張ろうね。", "ここで待ってる。", "終わったら、なでて。"];
+  if (affection >= 60) return ["待ってたよ。", "今日は何する？", "そばにいても、いいよ。"];
+  if (affection >= 40) return ["今日は何するの？", "また記録する？", "少し気になる。"];
+  if (affection >= 20) return ["また来たの？", "……近くにいてもいい。", "何かするの？"];
+  return ["・・・", "……にゃ。", "じーっ。"];
 }
 
-function setAmountStyle(element, value) {
-  element.classList.toggle("positive", value > 0);
-  element.classList.toggle("negative", value < 0);
-}
-
-function updateDifference() {
-  const difference = (Number(elements.returnAmount.value) || 0) - (Number(elements.investment.value) || 0);
-  elements.difference.textContent = formatCurrency(difference);
-  setAmountStyle(elements.difference, difference);
-}
-
-function getSecretaryState(monthTotal) {
-  if (monthTotal >= 50000) return secretaryStates.rich;
-  if (monthTotal >= 10000) return secretaryStates.cute;
-  if (monthTotal <= -50000) return secretaryStates.broke;
-  if (monthTotal <= -10000) return secretaryStates.poor;
-  return secretaryStates.normal;
-}
-
-function selectLine(state, randomize) {
-  if (!randomize) return state.lines[0];
-  const previous = sessionStorage.getItem(LAST_LINE_KEY);
-  const candidates = state.lines.filter((line) => line !== previous);
-  const line = candidates[Math.floor(Math.random() * candidates.length)] || state.lines[0];
-  sessionStorage.setItem(LAST_LINE_KEY, line);
+function chooseCatLine(forceNew = false) {
+  const candidates = getLineCandidates();
+  const previous = localStorage.getItem(KEYS.lastLine);
+  const pool = forceNew ? candidates.filter((line) => line !== previous) : candidates;
+  const line = pool[Math.floor(Math.random() * pool.length)] || candidates[0];
+  localStorage.setItem(KEYS.lastLine, line);
   return line;
 }
 
-function updateSecretary(total, randomize = false) {
-  const state = getSecretaryState(total);
-  elements.secretaryCard.className = `secretary-card ${state.className}`;
-  elements.secretaryFace.textContent = state.face;
-  elements.secretaryOutfit.textContent = state.outfit;
-  elements.secretaryStatus.textContent = state.label;
-  elements.secretaryLine.textContent = selectLine(state, randomize);
-  elements.secretaryImage.alt = `収支秘書 ミドリ（${state.label}）`;
-
-  if (failedCharacterImages.has(state.imagePath)) {
-    elements.secretaryImage.hidden = true;
-    elements.secretaryFallback.hidden = false;
-    return;
-  }
-
-  if (elements.secretaryImage.dataset.imagePath !== state.imagePath) {
-    elements.secretaryImage.hidden = true;
-    elements.secretaryFallback.hidden = false;
-    elements.secretaryImage.dataset.imagePath = state.imagePath;
-    elements.secretaryImage.src = state.imagePath;
-  }
-}
-
-function getAffectionLabel(value) {
-  if (value >= 80) return "特別な信頼";
-  if (value >= 60) return "親しい関係";
-  if (value >= 40) return "信頼の芽";
-  if (value >= 20) return "まだ慎重";
-  return "距離あり";
-}
-
-function updateAffectionDisplay() {
+function renderCat(forceNewLine = false) {
+  const state = getCatState();
+  elements.catCard.className = `cat-card ${state.className}`.trim();
+  elements.catStatus.textContent = state.label;
+  elements.catEmoji.textContent = state.emoji;
   elements.affectionValue.textContent = affection;
   elements.affectionMeter.style.width = `${affection}%`;
-  elements.affectionMeter.parentElement.setAttribute("aria-valuenow", affection);
-  elements.affectionLabel.textContent = getAffectionLabel(affection);
+  elements.affectionTrack.setAttribute("aria-valuenow", affection);
+  elements.catLine.textContent = chooseCatLine(forceNewLine);
 }
 
-function getWalletHp(monthTotal) {
-  if (monthTotal >= 50000) return 100;
-  if (monthTotal >= 10000) return 75;
-  if (monthTotal <= -50000) return 5;
-  if (monthTotal <= -10000) return 25;
-  return 50;
+function renderGoal() {
+  const hasGoal = Boolean(goal);
+  elements.goalSetupCard.hidden = hasGoal;
+  elements.todayCard.hidden = !hasGoal;
+  elements.currentGoal.textContent = goal;
+  elements.goalInput.value = goal;
 }
 
-function updateWalletDisplay(monthTotal) {
-  const hp = getWalletHp(monthTotal);
-  elements.walletHp.textContent = hp;
-  elements.walletMeter.style.width = `${hp}%`;
-  elements.walletMeter.parentElement.setAttribute("aria-valuenow", hp);
-}
-
-function applyAffection(delta) {
-  affection = Math.min(100, Math.max(0, affection + delta));
-  localStorage.setItem(AFFECTION_KEY, String(affection));
-  updateAffectionDisplay();
-}
-
-function addConversation(choice, response) {
-  conversations.push({
-    id: `${Date.now()}-${Math.random()}`,
-    choice,
-    response,
-    createdAt: new Date().toISOString()
-  });
-  conversations = conversations.slice(-MAX_CONVERSATIONS);
-  localStorage.setItem(CONVERSATION_KEY, JSON.stringify(conversations));
-  renderConversations();
-}
-
-function renderConversations() {
-  elements.conversationLog.replaceChildren();
-  [...conversations].slice(-5).reverse().forEach((entry) => {
+function renderInventory() {
+  elements.inventoryList.replaceChildren();
+  Object.entries(ITEMS).forEach(([key, item]) => {
+    const count = Number(inventory[key] || 0);
     const article = document.createElement("article");
-    article.className = "conversation-entry";
-    const text = document.createElement("p");
-    text.textContent = `ミドリ「${entry.response}」`;
-    const meta = document.createElement("small");
-    meta.textContent = entry.choice ? `あなた：${entry.choice}` : "ミドリからのメッセージ";
-    article.append(text, meta);
-    elements.conversationLog.append(article);
-  });
-  elements.conversationEmpty.hidden = conversations.length > 0;
-}
-
-function showChoices(balance) {
-  const result = balance > 0 ? "positive" : balance < 0 ? "negative" : "neutral";
-  elements.choiceButtons.replaceChildren();
-  choicesByResult[result].forEach((choice) => {
+    article.className = "item-card";
+    const icon = document.createElement("span");
+    icon.className = "item-icon";
+    icon.textContent = item.icon;
+    const title = document.createElement("h3");
+    title.textContent = item.name;
+    const amount = document.createElement("p");
+    amount.textContent = `所持 ${count}個`;
     const button = document.createElement("button");
+    button.className = "gift-button";
     button.type = "button";
-    button.className = "choice-button";
-    button.textContent = choice.label;
-    button.addEventListener("click", () => {
-      const latest = getLatestRecord();
-      if (choice.label === "勝ち逃げする" && latest) {
-        localStorage.setItem(ESCAPE_RECORD_KEY, latest.id);
-      }
-      applyAffection(choice.delta);
-      elements.secretaryLine.textContent = choice.response;
-      addConversation(choice.label, choice.response);
-      elements.choicePanel.hidden = true;
-      updateWinEscapeButton();
-    });
-    elements.choiceButtons.append(button);
+    button.textContent = `渡す（+${item.affection}）`;
+    button.disabled = count < 1 || daysAway >= 10;
+    button.addEventListener("click", () => giveItem(key));
+    article.append(icon, title, amount, button);
+    elements.inventoryList.append(article);
   });
-  elements.choicePanel.hidden = false;
-  elements.choicePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-function getLatestRecord() {
-  return records.length ? records[records.length - 1] : null;
+function giveItem(key) {
+  const item = ITEMS[key];
+  if (!item || Number(inventory[key] || 0) < 1 || daysAway >= 10) return;
+  inventory[key] -= 1;
+  affection = clamp(affection + item.affection, 0, 100);
+  saveCoreData();
+  renderInventory();
+  renderCat();
+  elements.catLine.textContent = item.reply;
 }
 
-function updateWinEscapeButton() {
-  const latest = getLatestRecord();
-  const claimedId = localStorage.getItem(ESCAPE_RECORD_KEY);
-  const canEscape = latest && Number(latest.balance) > 0 && claimedId !== latest.id;
-  elements.winEscapeButton.disabled = !canEscape;
-  elements.winEscapeButton.textContent = latest && Number(latest.balance) > 0 && claimedId === latest.id
-    ? "勝ち逃げ済み"
-    : "勝ち逃げする";
-}
-
-function sumBalance(items) {
-  return items.reduce((sum, record) => sum + Number(record.balance || 0), 0);
-}
-
-function updateSummary(randomizeLine = false) {
-  const today = getLocalDateString();
-  const month = today.slice(0, 7);
-  const todayTotal = sumBalance(records.filter((record) => record.date === today));
-  const monthTotal = sumBalance(records.filter((record) => record.date.startsWith(month)));
-  const total = sumBalance(records);
-  const wins = records.filter((record) => record.balance > 0).length;
-  const losses = records.filter((record) => record.balance < 0).length;
-  const balances = records.map((record) => Number(record.balance || 0));
-  const maxWin = Math.max(0, ...balances);
-  const maxLoss = Math.min(0, ...balances);
-  const decided = wins + losses;
-
-  [["today-balance", todayTotal], ["month-balance", monthTotal], ["total-balance", total], ["max-win", maxWin], ["max-loss", maxLoss]].forEach(([id, value]) => {
-    const element = document.querySelector(`#${id}`);
-    element.textContent = formatCurrency(value);
-    setAmountStyle(element, value);
-  });
-  document.querySelector("#win-count").textContent = wins;
-  document.querySelector("#loss-count").textContent = losses;
-  document.querySelector("#win-rate").textContent = decided ? ((wins / decided) * 100).toFixed(1) : "0.0";
-  updateSecretary(monthTotal, randomizeLine);
-  updateWalletDisplay(monthTotal);
-  updateWinEscapeButton();
-}
-
-function createHistoryCard(record) {
-  const article = document.createElement("article");
-  article.className = "history-card";
-
-  const head = document.createElement("div");
-  head.className = "history-card-head";
-  const titleArea = document.createElement("div");
-  const title = document.createElement("h3");
-  title.textContent = record.place || "場所未入力";
-  const meta = document.createElement("p");
-  meta.className = "history-meta";
-  meta.textContent = `${record.date} · ${record.type}`;
-  titleArea.append(title, meta);
-
-  const balance = document.createElement("strong");
-  balance.className = "history-balance";
-  balance.textContent = formatCurrency(record.balance);
-  setAmountStyle(balance, record.balance);
-  head.append(titleArea, balance);
-
-  const amounts = document.createElement("div");
-  amounts.className = "history-amounts";
-  amounts.textContent = `投資 ¥${record.investment.toLocaleString("ja-JP")}　回収 ¥${record.returnAmount.toLocaleString("ja-JP")}`;
-  article.append(head, amounts);
-
-  if (record.memo) {
-    const memo = document.createElement("p");
-    memo.className = "history-memo";
-    memo.textContent = record.memo;
-    article.append(memo);
-  }
-
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "delete-record";
-  deleteButton.type = "button";
-  deleteButton.dataset.id = record.id;
-  deleteButton.textContent = "この記録を削除";
-  article.append(deleteButton);
-  return article;
+function renderSummary() {
+  const dates = getUniqueRecordDates();
+  const today = getLocalDate();
+  const doneToday = dates.includes(today);
+  elements.streakCount.textContent = getStreak();
+  elements.totalDays.textContent = dates.length;
+  elements.todayStatus.textContent = doneToday ? "記録済み" : "未記録";
+  elements.todayStatus.classList.toggle("done", doneToday);
+  elements.lastRecordDate.textContent = dates.length ? dates[dates.length - 1] : "まだありません";
 }
 
 function renderHistory() {
   elements.historyList.replaceChildren();
-  const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
-  sorted.slice(0, MAX_VISIBLE_RECORDS).forEach((record) => elements.historyList.append(createHistoryCard(record)));
+  [...records].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5).forEach((record) => {
+    const article = document.createElement("article");
+    article.className = "history-card";
+    const head = document.createElement("div");
+    head.className = "history-card-head";
+    const title = document.createElement("h3");
+    title.textContent = record.action;
+    const date = document.createElement("span");
+    date.className = "history-date";
+    date.textContent = record.date;
+    head.append(title, date);
+    article.append(head);
+    if (record.amount) {
+      const amount = document.createElement("span");
+      amount.className = "history-amount";
+      amount.textContent = record.amount;
+      article.append(amount);
+    }
+    if (record.memo) {
+      const memo = document.createElement("p");
+      memo.className = "history-memo";
+      memo.textContent = record.memo;
+      article.append(memo);
+    }
+    elements.historyList.append(article);
+  });
   elements.emptyMessage.hidden = records.length > 0;
   elements.recordCount.textContent = `${records.length}件`;
 }
 
-function render(randomizeLine = false) {
-  updateSummary(randomizeLine);
+function renderAll(forceNewLine = false) {
+  renderGoal();
+  renderCat(forceNewLine);
+  renderInventory();
+  renderSummary();
   renderHistory();
-  updateAffectionDisplay();
-  renderConversations();
 }
 
-elements.form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(elements.form);
-  const investment = Number(formData.get("investment"));
-  const returnAmount = Number(formData.get("returnAmount"));
-  if (!Number.isFinite(investment) || !Number.isFinite(returnAmount) || investment < 0 || returnAmount < 0) return;
+function showCatImage() {
+  elements.catImage.hidden = false;
+  elements.catFallback.hidden = true;
+}
 
+function showCatFallback() {
+  elements.catImage.removeAttribute("src");
+  elements.catImage.hidden = true;
+  elements.catFallback.hidden = false;
+}
+
+elements.catImage.addEventListener("load", showCatImage);
+elements.catImage.addEventListener("error", showCatFallback);
+if (elements.catImage.complete) {
+  if (elements.catImage.naturalWidth > 0) showCatImage();
+  else showCatFallback();
+}
+
+elements.goalForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  goal = elements.goalInput.value.trim();
+  if (!goal) return;
+  localStorage.setItem(KEYS.goal, goal);
+  renderGoal();
+});
+
+elements.editGoalButton.addEventListener("click", () => {
+  elements.goalSetupCard.hidden = false;
+  elements.todayCard.hidden = true;
+  elements.goalInput.focus();
+});
+
+elements.recordForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(elements.recordForm);
   records.push({
     id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-    date: String(formData.get("date")),
-    type: String(formData.get("type")),
-    place: String(formData.get("place")).trim(),
-    investment,
-    returnAmount,
-    balance: returnAmount - investment,
+    date: getLocalDate(),
+    action: String(formData.get("action")).trim() || goal || "今日の目標に取り組んだ",
+    amount: String(formData.get("amount")).trim(),
     memo: String(formData.get("memo")).trim(),
     createdAt: new Date().toISOString()
   });
-  saveRecords();
-  elements.form.reset();
-  elements.date.value = getLocalDateString();
-  updateDifference();
-  render(true);
-  showChoices(returnAmount - investment);
+  affection = clamp(affection + 3, 0, 100);
+  daysAway = 0;
+  saveCoreData();
+  elements.recordForm.reset();
+  renderAll(true);
 });
 
-elements.winEscapeButton.addEventListener("click", () => {
-  const latest = getLatestRecord();
-  if (!latest || Number(latest.balance) <= 0 || localStorage.getItem(ESCAPE_RECORD_KEY) === latest.id) return;
-  const response = "きちんと勝ちを残せましたね。今日は素直に褒めてあげます。";
-  localStorage.setItem(ESCAPE_RECORD_KEY, latest.id);
-  applyAffection(2);
-  elements.secretaryLine.textContent = response;
-  addConversation("勝ち逃げする", response);
-  elements.choicePanel.hidden = true;
-  updateWinEscapeButton();
-});
-
-elements.historyList.addEventListener("click", (event) => {
-  const button = event.target.closest(".delete-record");
-  if (!button || !confirm("この記録を削除しますか？")) return;
-  records = records.filter((record) => record.id !== button.dataset.id);
-  saveRecords();
-  render();
-});
-
-elements.deleteAll.addEventListener("click", () => {
-  const hasData = records.length || conversations.length || affection !== 50;
-  if (!hasData || !confirm("すべての収支データと会話データを削除します。この操作は元に戻せません。よろしいですか？")) return;
+elements.resetButton.addEventListener("click", () => {
+  if (!confirm("目標・記録・猫とのなかよし度をすべてリセットしますか？")) return;
+  Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
+  goal = "";
   records = [];
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(AFFECTION_KEY);
-  localStorage.removeItem(CONVERSATION_KEY);
-  localStorage.removeItem(ESCAPE_RECORD_KEY);
-  affection = 50;
-  conversations = [];
-  elements.choicePanel.hidden = true;
-  render();
+  inventory = { food: 0, snack: 0, toy: 0 };
+  affection = 0;
+  daysAway = 0;
+  renderAll();
+  elements.bonusMessage.textContent = "リセットしました。次回アクセス時に新しいボーナスを受け取れます。";
 });
 
-elements.investment.addEventListener("input", updateDifference);
-elements.returnAmount.addEventListener("input", updateDifference);
-elements.date.value = getLocalDateString();
-updateDifference();
-render();
+grantLoginBonus();
+renderAll();

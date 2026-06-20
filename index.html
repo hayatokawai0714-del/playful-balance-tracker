@@ -3,171 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#147d70">
-  <meta name="description" content="毎日の収支を端末内に記録できるシンプルな収支管理アプリ">
-  <title>まいにち収支メモ</title>
+  <meta name="theme-color" content="#4f9685">
+  <meta name="description" content="目標を記録しながら迷い猫と仲良くなる習慣化Webアプリ">
+  <title>ねこ習慣ノート</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main class="app-shell">
     <header class="app-header">
-      <p class="eyebrow">PLAYFUL BALANCE TRACKER</p>
-      <h1>まいにち収支メモ</h1>
-      <p>使った金額と戻った金額を、落ち着いて記録。</p>
+      <p class="eyebrow">CAT &amp; HABIT NOTE</p>
+      <h1>ねこ習慣ノート</h1>
+      <p>目標を続けると、猫が少しずつ懐いていく。</p>
     </header>
 
-    <section id="secretary-card" class="secretary-card secretary--normal" aria-labelledby="secretary-title">
-      <span class="secretary-sparkle sparkle-one" aria-hidden="true">✦</span>
-      <span class="secretary-sparkle sparkle-two" aria-hidden="true">✧</span>
-      <div class="secretary-visual">
-        <div class="secretary-visual-glow" aria-hidden="true"></div>
-        <img id="secretary-character-image" class="secretary-character-image" alt="収支秘書 ミドリ" hidden>
-        <div id="secretary-fallback" class="secretary-fallback" aria-hidden="true">
-          <div class="secretary-portrait">
-            <div class="secretary-hair"></div>
-            <span id="secretary-face" class="secretary-face">🙂</span>
-            <div class="secretary-body">
-              <span id="secretary-outfit" class="secretary-outfit">👔</span>
-            </div>
-          </div>
+    <section id="cat-card" class="cat-card" aria-labelledby="cat-name">
+      <div class="cat-scene">
+        <span class="scene-sparkle sparkle-one" aria-hidden="true">✦</span>
+        <span class="scene-sparkle sparkle-two" aria-hidden="true">✧</span>
+        <img id="cat-image" class="cat-image" src="assets/cats/stray-cat.png" alt="茶トラの迷い猫" hidden>
+        <div id="cat-fallback" class="cat-fallback" aria-hidden="true">
+          <span id="cat-emoji" class="cat-emoji">🐈</span>
+          <span class="cat-shadow"></span>
         </div>
       </div>
-      <div class="secretary-content">
-        <div class="secretary-heading">
-          <span id="secretary-status" class="status-badge">通常</span>
+      <div class="cat-content">
+        <div class="cat-heading">
+          <span id="cat-status" class="status-badge">警戒中</span>
           <div>
-            <h2 id="secretary-title">収支秘書 ミドリ</h2>
-            <p class="secretary-role">あなたの収支を見守る秘書</p>
+            <h2 id="cat-name">迷い猫</h2>
+            <p>茶トラ・いつの間にか家にいた</p>
           </div>
         </div>
-        <div class="dialogue-box">
-          <span class="dialogue-name">ミドリ</span>
-          <p id="secretary-line" class="secretary-line" aria-live="polite">今日も事実を淡々と記録しましょう。</p>
+        <div class="affection-block">
+          <div class="meter-heading"><span>なかよし度</span><strong><b id="affection-value">0</b> / 100</strong></div>
+          <div id="affection-track" class="meter-track" role="progressbar" aria-label="猫の好感度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span id="affection-meter" class="meter-fill"></span>
+          </div>
+        </div>
+        <div class="speech-box">
+          <span class="speech-name">迷い猫</span>
+          <p id="cat-line" aria-live="polite">・・・</p>
         </div>
       </div>
     </section>
 
-    <section class="game-hud" aria-label="ミドリとの関係と財布の状態">
-      <div class="meter-card">
-        <div class="meter-heading"><span>好感度</span><strong id="affection-value">50</strong></div>
-        <div class="meter-track" role="progressbar" aria-label="ミドリの好感度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-          <span id="affection-meter" class="meter-fill affection-fill" style="width: 50%"></span>
-        </div>
-        <small id="affection-label">信頼の芽</small>
-      </div>
-      <div class="meter-card">
-        <div class="meter-heading"><span>財布HP</span><strong id="wallet-hp">50</strong></div>
-        <div class="meter-track" role="progressbar" aria-label="財布HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-          <span id="wallet-meter" class="meter-fill wallet-fill" style="width: 50%"></span>
-        </div>
-        <small>今月収支から算出</small>
-      </div>
-      <button id="win-escape-button" class="win-escape-button" type="button" disabled>勝ち逃げする</button>
-    </section>
-
-    <section class="conversation-section" aria-labelledby="conversation-title">
-      <div class="section-heading compact-heading">
-        <h2 id="conversation-title">ミドリとの会話</h2>
-        <span>最新5件</span>
-      </div>
-      <div id="conversation-log" class="conversation-log" aria-live="polite"></div>
-      <p id="conversation-empty" class="conversation-empty">収支を記録すると、ミドリとの会話が始まります。</p>
-    </section>
-
-    <section class="summary-section" aria-labelledby="summary-title">
-      <h2 id="summary-title" class="section-title">収支サマリー</h2>
-      <div class="summary-grid">
-        <article class="summary-card">
-          <span>今日</span>
-          <strong id="today-balance">¥0</strong>
-        </article>
-        <article class="summary-card">
-          <span>今月</span>
-          <strong id="month-balance">¥0</strong>
-        </article>
-        <article class="summary-card summary-card-total">
-          <span>累計</span>
-          <strong id="total-balance">¥0</strong>
-        </article>
-      </div>
-      <div class="stats-card">
-        <span class="stat-item"><small>勝ち回数</small><strong><b id="win-count">0</b>回</strong></span>
-        <span class="stat-item"><small>負け回数</small><strong><b id="loss-count">0</b>回</strong></span>
-        <span class="stat-item"><small>勝率</small><strong><b id="win-rate">0.0</b>%</strong></span>
-      </div>
-      <div class="extreme-grid">
-        <article class="extreme-card">
-          <span>最大勝ち額</span>
-          <strong id="max-win">¥0</strong>
-        </article>
-        <article class="extreme-card">
-          <span>最大負け額</span>
-          <strong id="max-loss">¥0</strong>
-        </article>
-      </div>
-    </section>
-
-    <section class="card form-section" aria-labelledby="form-title">
-      <h2 id="form-title" class="section-title">収支を記録</h2>
-      <form id="balance-form">
-        <div class="form-grid">
-          <label>
-            日付
-            <input id="date" name="date" type="date" required>
-          </label>
-          <label>
-            種別
-            <select id="type" name="type" required>
-              <option value="パチンコ">パチンコ</option>
-              <option value="スロット">スロット</option>
-              <option value="競馬">競馬</option>
-              <option value="その他">その他</option>
-            </select>
-          </label>
-        </div>
-        <label>
-          場所・店舗名
-          <input id="place" name="place" type="text" maxlength="50" placeholder="例：駅前店">
-        </label>
-        <div class="form-grid money-grid">
-          <label>
-            投資金額
-            <span class="money-input"><span>¥</span><input id="investment" name="investment" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></span>
-          </label>
-          <label>
-            回収金額
-            <span class="money-input"><span>¥</span><input id="return-amount" name="returnAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></span>
-          </label>
-        </div>
-        <div class="difference-preview">
-          今回の差額 <strong id="difference-preview">¥0</strong>
-        </div>
-        <label>
-          メモ
-          <textarea id="memo" name="memo" rows="3" maxlength="200" placeholder="振り返りをひとこと"></textarea>
-        </label>
-        <button class="primary-button" type="submit">この収支を保存</button>
+    <section id="goal-setup-card" class="card goal-setup-card" aria-labelledby="goal-setup-title">
+      <p class="card-kicker">FIRST STEP</p>
+      <h2 id="goal-setup-title">続けたい目標を決めよう</h2>
+      <p>小さく始められる目標がおすすめです。</p>
+      <form id="goal-form" class="goal-form">
+        <label for="goal-input">目標名</label>
+        <input id="goal-input" name="goal" type="text" maxlength="80" placeholder="例：毎日30分、資格の勉強をする" required>
+        <button class="primary-button" type="submit">この目標で始める</button>
       </form>
     </section>
 
-    <section id="choice-panel" class="choice-panel" aria-labelledby="choice-title" hidden>
-      <p class="choice-kicker">YOUR CHOICE</p>
-      <h2 id="choice-title">ミドリにどう答える？</h2>
-      <div id="choice-buttons" class="choice-buttons"></div>
+    <section id="today-card" class="card today-card" aria-labelledby="today-title" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="card-kicker">TODAY'S GOAL</p>
+          <h2 id="today-title">今日の目標</h2>
+        </div>
+        <button id="edit-goal-button" class="text-button" type="button">目標を変更</button>
+      </div>
+      <p id="current-goal" class="current-goal"></p>
+      <form id="record-form" class="record-form">
+        <label>今日やったこと
+          <input id="action-input" name="action" type="text" maxlength="100" placeholder="未入力でも記録できます">
+        </label>
+        <label>時間・回数
+          <input id="amount-input" name="amount" type="text" maxlength="40" placeholder="例：30分 / 10回">
+        </label>
+        <label>メモ
+          <textarea id="memo-input" name="memo" rows="3" maxlength="200" placeholder="ひとこと振り返り"></textarea>
+        </label>
+        <button id="record-button" class="primary-button record-button" type="submit">今日やった</button>
+      </form>
+    </section>
+
+    <section class="bonus-card card" aria-labelledby="bonus-title">
+      <div class="bonus-icon" aria-hidden="true">🎁</div>
+      <div>
+        <p class="card-kicker">DAILY BONUS</p>
+        <h2 id="bonus-title">ログインボーナス</h2>
+        <p id="bonus-message">今日のプレゼントを確認中…</p>
+      </div>
+      <span class="received-badge">受取済み</span>
+    </section>
+
+    <section class="present-section" aria-labelledby="present-title">
+      <h2 id="present-title" class="section-title">猫にプレゼント</h2>
+      <div id="inventory-list" class="inventory-grid"></div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="summary-title">
+      <h2 id="summary-title" class="section-title">継続サマリー</h2>
+      <div class="summary-grid">
+        <article class="summary-card"><span>連続達成</span><strong><b id="streak-count">0</b>日</strong></article>
+        <article class="summary-card"><span>合計記録</span><strong><b id="total-days">0</b>日</strong></article>
+        <article class="summary-card"><span>今日</span><strong id="today-status">未記録</strong></article>
+      </div>
+      <p class="last-record">最終記録日：<span id="last-record-date">まだありません</span></p>
     </section>
 
     <section class="history-section" aria-labelledby="history-title">
       <div class="section-heading">
-        <h2 id="history-title" class="section-title">最近の履歴</h2>
-        <span id="record-count" class="record-count">0件</span>
+        <h2 id="history-title" class="section-title">最近の記録</h2>
+        <span id="record-count" class="count-badge">0件</span>
       </div>
       <div id="history-list" class="history-list"></div>
-      <p id="empty-message" class="empty-message">まだ記録がありません。最初の収支を入力しましょう。</p>
+      <p id="empty-message" class="empty-message">最初の一歩を記録してみましょう。</p>
     </section>
 
     <footer>
-      <button id="delete-all-button" class="danger-button" type="button">すべてのデータを削除</button>
-      <p>記録はこの端末のブラウザ内にのみ保存されます。</p>
+      <button id="reset-button" class="danger-button" type="button">すべてのデータをリセット</button>
+      <p>データはこの端末のブラウザ内に保存されます。</p>
     </footer>
   </main>
   <script src="js/main.js" defer></script>
