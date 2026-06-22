@@ -36,11 +36,11 @@
 
 ## 猫画像
 
-`assets/cats/stray-cat.png` にミドリ、`assets/cats/cat-kuro.png` にクロの背景透過PNGを配置すると猫画像を表示します。画像がない猫は、茶トラ・黒猫それぞれのCSSプレースホルダーへ自動で切り替わります。詳細は [assets/cats/README.md](assets/cats/README.md) を参照してください。
+`assets/cats/cat-main.png` にミドリ、`assets/cats/cat-kuro.png` にクロのPNGを配置すると猫画像を表示します。猫画像は背景透過PNGを推奨します。画像がない猫は、茶トラ・黒猫それぞれのCSSプレースホルダーへ自動で切り替わります。詳細は [assets/cats/README.md](assets/cats/README.md) を参照してください。
 
 ## 猫部屋・アイテム画像
 
-`assets/room/cat-room-bg.png` に横長の背景画像を配置すると、CSS背景から自動で切り替わります。画像がない場合や読み込めない場合も、CSSの庭・縁側・和室が表示されます。背景の推奨仕様は [assets/room/README.md](assets/room/README.md) を参照してください。将来の猫画像とアイテム画像は、それぞれ `assets/cats/`、`assets/items/` へ追加する方針です。
+`assets/room/cat-room-bg.png` に横長のPNG背景を配置すると、CSS背景から自動で切り替わります。同じファイル名で差し替え可能です。画像がない場合や読み込めない場合も、CSSの庭・縁側・和室が表示されます。背景の推奨仕様は [assets/room/README.md](assets/room/README.md) を参照してください。将来の猫画像とアイテム画像は、それぞれ `assets/cats/`、`assets/items/` へ追加する方針です。
 
 ## GitHub Pages
 
