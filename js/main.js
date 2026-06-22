@@ -42,6 +42,7 @@ const elements = {
   affectionLabel: document.querySelector("#affection-label"),
   catTodayMessage: document.querySelector("#cat-today-message"),
   catStreakCount: document.querySelector("#cat-streak-count"),
+  catTotalDays: document.querySelector("#cat-total-days"),
   newCatHint: document.querySelector("#new-cat-hint"),
   roomResidents: document.querySelector("#room-residents"),
   secondCatName: document.querySelector("#second-cat-name"),
@@ -359,6 +360,7 @@ function renderSummary() {
   const doneToday = dates.includes(today);
   elements.streakCount.textContent = getStreak();
   elements.totalDays.textContent = dates.length;
+  elements.catTotalDays.textContent = dates.length;
   elements.todayStatus.textContent = doneToday ? "記録済み" : "未記録";
   elements.todayStatus.classList.toggle("done", doneToday);
   elements.lastRecordDate.textContent = dates.length ? dates[dates.length - 1] : "まだありません";
