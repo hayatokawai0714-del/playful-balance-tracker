@@ -26,11 +26,16 @@ const ITEMS = {
 
 const elements = {
   catCard: document.querySelector("#catCompanion"),
+  catStage: document.querySelector("#cat-stage"),
   catImage: document.querySelector("#cat-image"),
   catFallback: document.querySelector("#cat-fallback"),
+  friendCatCharacter: document.querySelector("#friend-cat-character"),
+  kuroImage: document.querySelector("#kuro-image"),
+  kuroFallback: document.querySelector("#kuro-fallback"),
   catReaction: document.querySelector("#cat-reaction"),
   catStatus: document.querySelector("#cat-status"),
   catLine: document.querySelector("#cat-line"),
+  speechName: document.querySelector("#speech-name"),
   affectionValue: document.querySelector("#affection-value"),
   affectionMeter: document.querySelector("#affection-meter"),
   affectionTrack: document.querySelector("#affection-track"),
@@ -38,13 +43,10 @@ const elements = {
   catTodayMessage: document.querySelector("#cat-today-message"),
   catStreakCount: document.querySelector("#cat-streak-count"),
   newCatHint: document.querySelector("#new-cat-hint"),
-  newCatEvent: document.querySelector("#new-cat-event"),
-  companionSection: document.querySelector("#companion-section"),
-  companionCard: document.querySelector(".companion-card"),
+  roomResidents: document.querySelector("#room-residents"),
   secondCatName: document.querySelector("#second-cat-name"),
   secondCatType: document.querySelector("#second-cat-type"),
   secondCatPersonality: document.querySelector("#second-cat-personality"),
-  secondCatAffection: document.querySelector("#second-cat-affection"),
   goalSetupCard: document.querySelector("#goal-setup-card"),
   goalForm: document.querySelector("#goal-form"),
   goalInput: document.querySelector("#goal-input"),
@@ -207,6 +209,15 @@ function chooseCatLine(forceNew = false) {
   return line;
 }
 
+function chooseKuroLine() {
+  const candidates = ["……ここ、あったかい。", "ミドリが、ここなら安心って。", "少しだけ、いてもいい？"];
+  const previous = localStorage.getItem(KEYS.lastLine);
+  const pool = candidates.filter((line) => line !== previous);
+  const line = pool[Math.floor(Math.random() * pool.length)] || candidates[0];
+  localStorage.setItem(KEYS.lastLine, line);
+  return line;
+}
+
 function renderCat(forceNewLine = false) {
   const state = getCatState();
   const distance = getAffectionState();
@@ -216,7 +227,9 @@ function renderCat(forceNewLine = false) {
   elements.affectionMeter.style.width = `${affection}%`;
   elements.affectionTrack.setAttribute("aria-valuenow", affection);
   elements.affectionLabel.textContent = distance.label;
-  elements.catLine.textContent = chooseCatLine(forceNewLine);
+  const kuroSpeaks = secondCatUnlocked && daysAway < 3 && !forceNewLine && Math.random() < 0.22;
+  elements.speechName.textContent = kuroSpeaks ? "クロ" : "ミドリ";
+  elements.catLine.textContent = kuroSpeaks ? chooseKuroLine() : chooseCatLine(forceNewLine);
 }
 
 function triggerCatReaction(className, symbol) {
@@ -234,27 +247,25 @@ function triggerCatReaction(className, symbol) {
 function renderCompanions() {
   const secondCat = cats.find((cat) => cat.id === SECOND_CAT.id);
   elements.newCatHint.hidden = secondCatUnlocked;
-  elements.newCatEvent.hidden = !secondCatUnlocked;
-  elements.companionSection.hidden = !secondCatUnlocked;
+  elements.friendCatCharacter.hidden = !secondCatUnlocked;
+  elements.roomResidents.hidden = !secondCatUnlocked;
+  elements.catStage.classList.toggle("has-companion", secondCatUnlocked);
   if (!secondCat) return;
   elements.secondCatName.textContent = secondCat.name;
   elements.secondCatType.textContent = secondCat.type;
   elements.secondCatPersonality.textContent = secondCat.personality;
-  elements.secondCatAffection.textContent = clamp(Number(secondCat.affection) || 0, 0, 100);
 }
 
 function showSecondCatEvent() {
-  const message = "ミドリと仲良くなったことで安心したのか、もう1匹の猫が部屋にやってきました。";
+  const message = "部屋のすみから、黒い猫がそっと顔を出しました。";
+  elements.speechName.textContent = "できごと";
   elements.catLine.textContent = message;
-  elements.newCatEvent.classList.remove("is-new");
-  elements.companionCard.classList.remove("is-new");
-  void elements.newCatEvent.offsetWidth;
-  elements.newCatEvent.classList.add("is-new");
-  elements.companionCard.classList.add("is-new");
+  elements.friendCatCharacter.classList.remove("is-new");
+  void elements.friendCatCharacter.offsetWidth;
+  elements.friendCatCharacter.classList.add("is-new");
   triggerCatReaction("cat--new-friend", "🐾 ✦");
   setTimeout(() => {
-    elements.newCatEvent.classList.remove("is-new");
-    elements.companionCard.classList.remove("is-new");
+    elements.friendCatCharacter.classList.remove("is-new");
   }, 1800);
 }
 
@@ -332,6 +343,7 @@ function giveItem(key) {
   renderCat();
   renderCompanions();
   renderHistory();
+  elements.speechName.textContent = "ミドリ";
   elements.catLine.textContent = reply;
   focusCatAfterGift();
   clearTimeout(reactionStartTimer);
@@ -400,23 +412,26 @@ function renderAll(forceNewLine = false) {
   renderHistory();
 }
 
-function showCatImage() {
-  elements.catImage.hidden = false;
-  elements.catFallback.hidden = true;
+function setupCatImage(image, fallback) {
+  const showImage = () => {
+    image.hidden = false;
+    fallback.hidden = true;
+  };
+  const showFallback = () => {
+    image.removeAttribute("src");
+    image.hidden = true;
+    fallback.hidden = false;
+  };
+  image.addEventListener("load", showImage);
+  image.addEventListener("error", showFallback);
+  if (image.complete) {
+    if (image.naturalWidth > 0) showImage();
+    else showFallback();
+  }
 }
 
-function showCatFallback() {
-  elements.catImage.removeAttribute("src");
-  elements.catImage.hidden = true;
-  elements.catFallback.hidden = false;
-}
-
-elements.catImage.addEventListener("load", showCatImage);
-elements.catImage.addEventListener("error", showCatFallback);
-if (elements.catImage.complete) {
-  if (elements.catImage.naturalWidth > 0) showCatImage();
-  else showCatFallback();
-}
+setupCatImage(elements.catImage, elements.catFallback);
+setupCatImage(elements.kuroImage, elements.kuroFallback);
 
 elements.goalForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -460,6 +475,7 @@ elements.recordForm.addEventListener("submit", (event) => {
     elements.catLine.textContent = receivesAffection
       ? "今日もがんばったね。少し近づいた気がする。"
       : "また記録したんだ。えらいね。";
+    elements.speechName.textContent = "ミドリ";
     triggerCatReaction("cat--celebrate", "✦");
   }
 });

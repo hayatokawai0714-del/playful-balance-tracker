@@ -25,7 +25,8 @@
         <span class="cat-mat" aria-hidden="true"></span>
         <span class="cat-cushion" aria-hidden="true"></span>
         <span id="cat-reaction" class="cat-reaction" aria-hidden="true">♥</span>
-        <div class="cat-character-motion">
+        <div id="cat-stage" class="cat-stage">
+        <div class="cat-character cat-character-motion cat-character--main">
           <img id="cat-image" class="cat-image" src="assets/cats/stray-cat.png" alt="茶トラ猫のミドリ" hidden>
           <div id="cat-fallback" class="cat-fallback" aria-hidden="true">
             <div class="css-cat">
@@ -42,6 +43,25 @@
             <span class="cat-shadow"></span>
           </div>
         </div>
+          <div id="friend-cat-character" class="cat-character cat-character--friend" hidden>
+            <img id="kuro-image" class="cat-image cat-image--friend" src="assets/cats/cat-kuro.png" alt="黒猫のクロ" hidden>
+            <div id="kuro-fallback" class="cat-fallback" aria-hidden="true">
+              <div class="css-cat css-cat--black">
+                <span class="css-cat-tail"></span>
+                <span class="css-cat-body"></span>
+                <span class="css-cat-head">
+                  <i class="css-cat-ear ear-left"></i>
+                  <i class="css-cat-ear ear-right"></i>
+                  <i class="css-cat-eye eye-left"></i>
+                  <i class="css-cat-eye eye-right"></i>
+                  <i class="css-cat-nose"></i>
+                </span>
+              </div>
+              <span class="cat-shadow"></span>
+            </div>
+            <span class="cat-character-name">クロ</span>
+          </div>
+        </div>
       </div>
       <div class="cat-content">
         <div class="cat-heading">
@@ -51,6 +71,10 @@
             <p>茶トラ・いつの間にか家にいた</p>
           </div>
         </div>
+        <div id="room-residents" class="room-residents" hidden>
+          仲間：<b id="second-cat-name">クロ</b>
+          <span><span id="second-cat-type">黒猫</span>・<span id="second-cat-personality">少しクール</span></span>
+        </div>
         <div class="affection-block">
           <div class="meter-heading"><span>なかよし度</span><strong><b id="affection-value">0</b> / 100</strong></div>
           <div id="affection-track" class="meter-track" role="progressbar" aria-label="猫の好感度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -59,7 +83,7 @@
           <span id="affection-label" class="affection-label">警戒中</span>
         </div>
         <div class="speech-box">
-          <span class="speech-name">ミドリ</span>
+          <span id="speech-name" class="speech-name">ミドリ</span>
           <p id="cat-line" aria-live="polite">・・・</p>
         </div>
         <div class="cat-daily-status">
@@ -70,28 +94,6 @@
     </section>
 
     <p id="new-cat-hint" class="new-cat-hint">なかよし度が100になると、新しい猫が来るかも。</p>
-
-    <section id="new-cat-event" class="new-cat-event" aria-labelledby="new-cat-event-title" hidden>
-      <span class="event-icon" aria-hidden="true">🐾</span>
-      <div>
-        <p class="card-kicker">NEW FRIEND</p>
-        <h2 id="new-cat-event-title">新しい猫がやってきました</h2>
-        <p>ミドリと仲良くなったことで安心したのか、もう1匹の猫が部屋にやってきました。</p>
-      </div>
-    </section>
-
-    <section id="companion-section" class="companion-section" aria-labelledby="companion-title" hidden>
-      <h2 id="companion-title" class="section-title">仲間の猫</h2>
-      <article class="companion-card">
-        <div class="companion-cat" aria-hidden="true"><span>🐈‍⬛</span></div>
-        <div>
-          <span class="status-badge">新しい仲間</span>
-          <h3 id="second-cat-name">クロ</h3>
-          <p><span id="second-cat-type">黒猫</span>・<span id="second-cat-personality">少しクール</span></p>
-          <small>なかよし度 <b id="second-cat-affection">0</b> / 100</small>
-        </div>
-      </article>
-    </section>
 
     <section id="goal-setup-card" class="card goal-setup-card" aria-labelledby="goal-setup-title">
       <p class="card-kicker">FIRST STEP</p>
