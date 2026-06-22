@@ -26,6 +26,7 @@ const ITEMS = {
 
 const elements = {
   catCard: document.querySelector("#catCompanion"),
+  roomBackgroundImage: document.querySelector("#room-background-image"),
   catStage: document.querySelector("#cat-stage"),
   catImage: document.querySelector("#cat-image"),
   catFallback: document.querySelector("#cat-fallback"),
@@ -233,15 +234,18 @@ function renderCat(forceNewLine = false) {
   elements.catLine.textContent = kuroSpeaks ? chooseKuroLine() : chooseCatLine(forceNewLine);
 }
 
-function triggerCatReaction(className, symbol) {
+function triggerCatReaction(className, symbol, itemKey = "") {
   clearTimeout(reactionTimer);
   elements.catCard.classList.remove("cat--celebrate", "cat--gift-reaction", "cat--new-friend");
+  if (itemKey) elements.catCard.dataset.giftItem = itemKey;
+  else delete elements.catCard.dataset.giftItem;
   void elements.catCard.offsetWidth;
   elements.catReaction.textContent = symbol;
   elements.catCard.classList.add(className);
   const duration = className === "cat--new-friend" ? 1700 : className === "cat--gift-reaction" ? 1500 : 950;
   reactionTimer = setTimeout(() => {
     elements.catCard.classList.remove(className);
+    delete elements.catCard.dataset.giftItem;
   }, duration);
 }
 
@@ -350,7 +354,7 @@ function giveItem(key) {
   clearTimeout(reactionStartTimer);
   reactionStartTimer = setTimeout(() => {
     if (unlockedSecondCat) showSecondCatEvent();
-    else triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥");
+    else triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥", key);
   }, prefersReducedMotion() ? 0 : 320);
 }
 
@@ -434,6 +438,26 @@ function setupCatImage(image, fallback) {
 
 setupCatImage(elements.catImage, elements.catFallback);
 setupCatImage(elements.kuroImage, elements.kuroFallback);
+
+function setupRoomBackground() {
+  const image = elements.roomBackgroundImage;
+  const showImage = () => {
+    image.hidden = false;
+    image.parentElement.classList.add("has-room-background");
+  };
+  const showCssRoom = () => {
+    image.hidden = true;
+    image.parentElement.classList.remove("has-room-background");
+  };
+  image.addEventListener("load", showImage, { once: true });
+  image.addEventListener("error", showCssRoom, { once: true });
+  if (image.complete) {
+    if (image.naturalWidth > 0) showImage();
+    else showCssRoom();
+  }
+}
+
+setupRoomBackground();
 
 elements.goalForm.addEventListener("submit", (event) => {
   event.preventDefault();
