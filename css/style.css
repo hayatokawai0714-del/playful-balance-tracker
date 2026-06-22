@@ -39,28 +39,56 @@ button { cursor: pointer; }
 .room-shelf { position: absolute; top: 53px; right: 11px; color: rgba(136,104,76,.28); font-size: 1.5rem; }
 .cat-mat { position: absolute; right: 9px; bottom: 10px; left: 9px; height: 42px; border-radius: 50%; background: linear-gradient(180deg, #e9d6b8, #d9bc94); box-shadow: inset 0 5px 10px rgba(255,255,255,.35), 0 5px 8px rgba(100,76,48,.09); }
 .cat-cushion { position: absolute; right: 17px; bottom: 25px; width: 54px; height: 27px; border-radius: 50%; background: #c9e2da; box-shadow: inset 0 3px 7px rgba(255,255,255,.5); transform: rotate(-5deg); }
-.cat-image { position: absolute; z-index: 2; right: 0; bottom: -18px; left: 0; width: 100%; height: 205px; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 10px 10px rgba(72,68,55,.14)); transition: opacity .3s, transform .3s; }
-.cat-fallback { position: absolute; z-index: 2; inset: 0; display: grid; place-items: center; }
-.cat-emoji { position: relative; z-index: 2; padding: 11px 8px 5px; border-radius: 48% 48% 42% 42%; background: radial-gradient(circle at 45% 35%, rgba(255,255,255,.5), transparent 55%); font-size: 5.3rem; filter: drop-shadow(0 10px 7px rgba(85,68,48,.18)); transform: scaleX(-1); transition: opacity .3s, transform .35s; }
-.cat-shadow { position: absolute; bottom: 22px; width: 82px; height: 17px; border-radius: 50%; background: rgba(73,75,65,.12); filter: blur(3px); }
-.is-hidden .cat-emoji { opacity: .42; transform: translateX(-18px) scaleX(-1); }
-.is-away .cat-emoji { opacity: .14; transform: translateX(-32px) scale(.8) scaleX(-1); }
-.is-hidden .cat-image { opacity: .35; transform: translateX(-18px); }
-.is-away .cat-image { opacity: 0; transform: translateX(-32px) scale(.8); }
-.distance-wary .cat-image { opacity: .72; transform: translateX(-23px) scale(.84); }
-.distance-curious .cat-image { transform: translateX(-10px) scale(.9); }
-.distance-used .cat-image { transform: scale(.96); }
-.distance-close .cat-image { transform: translateX(5px) scale(1.02); }
-.distance-loving .cat-image { transform: translateX(9px) scale(1.08); }
-.distance-wary .cat-emoji { opacity: .72; transform: translateX(-23px) scale(.84) scaleX(-1); }
-.distance-curious .cat-emoji { transform: translateX(-10px) scale(.9) scaleX(-1); }
-.distance-used .cat-emoji { transform: scale(.96) scaleX(-1); }
-.distance-close .cat-emoji { transform: translateX(5px) scale(1.02) scaleX(-1); }
-.distance-loving .cat-emoji { transform: translateX(9px) scale(1.08) scaleX(-1); }
-.cat-card.is-hidden .cat-image { opacity: .35; transform: translateX(-18px); }
-.cat-card.is-away .cat-image { opacity: 0; transform: translateX(-32px) scale(.8); }
-.cat-card.is-hidden .cat-emoji { opacity: .42; transform: translateX(-18px) scaleX(-1); }
-.cat-card.is-away .cat-emoji { opacity: .14; transform: translateX(-32px) scale(.8) scaleX(-1); }
+.cat-character-motion { --cat-x: 0px; --cat-scale: 1; position: absolute; z-index: 2; inset: 0; opacity: 1; transform: translateX(var(--cat-x)) scale(var(--cat-scale)); transform-origin: center bottom; transition: opacity .3s, transform .35s; }
+.cat-image { position: absolute; right: 0; bottom: -18px; left: 0; width: 100%; height: 205px; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 10px 10px rgba(72,68,55,.14)); animation: catIdle 4.8s ease-in-out infinite; }
+.cat-fallback { position: absolute; inset: 0; display: grid; place-items: center; }
+.css-cat { position: relative; z-index: 2; width: 92px; height: 104px; margin-top: 30px; filter: drop-shadow(0 10px 7px rgba(85,68,48,.18)); animation: catIdle 4.8s ease-in-out infinite; }
+.css-cat-body { position: absolute; right: 8px; bottom: 4px; width: 70px; height: 70px; border-radius: 48% 52% 42% 45%; background: linear-gradient(145deg, #e9a052, #c97b38); box-shadow: inset 10px 2px rgba(255,220,166,.2); }
+.css-cat-head { position: absolute; z-index: 2; top: 4px; left: 5px; width: 65px; height: 59px; border-radius: 45% 48% 48% 46%; background: linear-gradient(145deg, #f0aa5b, #d48640); box-shadow: inset 8px 3px rgba(255,226,180,.2); }
+.css-cat-ear { position: absolute; z-index: -1; top: -13px; width: 25px; height: 30px; border-radius: 5px 22px 4px 20px; background: #dc8d44; transform-origin: center bottom; animation: catEar 6.5s ease-in-out infinite; }
+.ear-left { left: 3px; transform: rotate(-18deg); }
+.ear-right { right: 3px; transform: scaleX(-1) rotate(-18deg); animation-delay: .16s; }
+.css-cat-ear::after { position: absolute; inset: 7px 6px 4px; border-radius: inherit; background: #e9b093; content: ""; }
+.css-cat-eye { position: absolute; top: 25px; width: 7px; height: 10px; border-radius: 50%; background: #47382d; transform-origin: center; animation: catBlink 5.4s infinite; }
+.eye-left { left: 18px; }
+.eye-right { right: 18px; }
+.css-cat-nose { position: absolute; top: 38px; left: 29px; width: 7px; height: 5px; border-radius: 50% 50% 60% 60%; background: #9c6258; }
+.css-cat-tail { position: absolute; z-index: 3; right: -15px; bottom: 7px; width: 58px; height: 20px; border: 11px solid #c97b38; border-left: 0; border-bottom: 0; border-radius: 0 42px 0 0; transform-origin: 5px 10px; animation: catTail 5.2s ease-in-out infinite; }
+.cat-shadow { position: absolute; bottom: 22px; width: 82px; height: 17px; border-radius: 50%; background: rgba(73,75,65,.12); filter: blur(3px); animation: shadowBreath 4.8s ease-in-out infinite; }
+.distance-wary .cat-character-motion { --cat-x: -23px; --cat-scale: .84; opacity: .72; }
+.distance-curious .cat-character-motion { --cat-x: -10px; --cat-scale: .9; }
+.distance-used .cat-character-motion { --cat-scale: .96; }
+.distance-close .cat-character-motion { --cat-x: 5px; --cat-scale: 1.02; }
+.distance-loving .cat-character-motion { --cat-x: 9px; --cat-scale: 1.08; }
+.distance-wary .cat-image, .distance-wary .css-cat { animation-duration: 7s; animation-name: catIdleTiny; }
+.distance-wary .css-cat-tail { animation-duration: 8s; }
+.distance-curious .cat-image, .distance-curious .css-cat { animation-duration: 6s; animation-name: catIdleTiny; }
+.distance-close .css-cat-tail { animation-duration: 3.5s; }
+.distance-loving .css-cat-tail { animation-duration: 2.8s; }
+.cat-card.is-hidden .cat-character-motion { --cat-x: -18px; --cat-scale: .9; opacity: .35; }
+.cat-card.is-away .cat-character-motion { --cat-x: -32px; --cat-scale: .8; opacity: .08; }
+.cat-reaction { position: absolute; z-index: 5; top: 27px; right: 14px; color: #d97983; font-size: 1.5rem; opacity: 0; pointer-events: none; }
+
+.cat-card.cat--celebrate .cat-character-motion { animation: catCelebrate .85s ease-out; }
+.cat-card.cat--celebrate .cat-reaction { color: #dba549; animation: reactionPop .85s ease-out; }
+.cat-card.cat--celebrate .scene-sparkle { animation: sparklePop .85s ease-out; }
+.cat-card.cat--celebrate .speech-box, .cat-card.cat--gift .speech-box { animation: speechPop .55s ease-out; }
+.cat-card.cat--gift .cat-character-motion { animation: catGiftBounce .75s ease-out; }
+.cat-card.cat--gift .cat-reaction { animation: reactionPop .9s ease-out; }
+.cat-card.cat--gift .css-cat-tail { animation: catTailHappy .22s ease-in-out 4 alternate; }
+
+@keyframes catIdle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes catIdleTiny { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+@keyframes shadowBreath { 0%,100% { opacity: .8; transform: scaleX(1); } 50% { opacity: .6; transform: scaleX(.94); } }
+@keyframes catTail { 0%,72%,100% { transform: rotate(4deg); } 82% { transform: rotate(-8deg); } 91% { transform: rotate(10deg); } }
+@keyframes catTailHappy { from { transform: rotate(-10deg); } to { transform: rotate(16deg); } }
+@keyframes catEar { 0%,76%,100% { margin-top: 0; } 82% { margin-top: -2px; } 88% { margin-top: 1px; } }
+@keyframes catBlink { 0%,44%,48%,100% { transform: scaleY(1); } 46% { transform: scaleY(.08); } }
+@keyframes catCelebrate { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 38% { transform: translateX(calc(var(--cat-x) + 5px)) translateY(-13px) scale(calc(var(--cat-scale) + .04)); } 70% { transform: translateX(calc(var(--cat-x) + 8px)) translateY(-3px) scale(var(--cat-scale)); } }
+@keyframes catGiftBounce { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 35% { transform: translateX(calc(var(--cat-x) + 7px)) translateY(-8px) scale(calc(var(--cat-scale) + .05)); } 65% { transform: translateX(calc(var(--cat-x) + 4px)) scale(var(--cat-scale)); } }
+@keyframes reactionPop { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 30% { opacity: 1; transform: translateY(0) scale(1.15); } 100% { opacity: 0; transform: translateY(-18px) scale(.9); } }
+@keyframes sparklePop { 0%,100% { opacity: .3; transform: scale(.7); } 35% { opacity: 1; transform: scale(1.4); } }
+@keyframes speechPop { 0% { opacity: .65; transform: translateY(4px) scale(.98); } 100% { opacity: 1; transform: none; } }
 .scene-sparkle { position: absolute; color: #fff; text-shadow: 0 2px 8px rgba(69,126,113,.2); }
 .sparkle-one { top: 5px; left: 4px; }
 .sparkle-two { top: 18px; right: 3px; font-size: .8rem; }
@@ -145,7 +173,7 @@ button:focus-visible { outline: 3px solid rgba(79,150,133,.3); outline-offset: 3
   .app-shell { padding-inline: 12px; }
   .cat-card { grid-template-columns: 112px minmax(0,1fr); min-height: 252px; padding-inline: 12px; }
   .cat-image { height: 175px; }
-  .cat-emoji { font-size: 4.2rem; }
+  .css-cat { transform-origin: center bottom; }
   .speech-box p { font-size: .78rem; }
   .item-card { padding-inline: 5px; }
 }
@@ -153,9 +181,12 @@ button:focus-visible { outline: 3px solid rgba(79,150,133,.3); outline-offset: 3
   .app-shell { padding: 52px 24px 76px; }
   .cat-card { grid-template-columns: 190px minmax(0,1fr); min-height: 310px; padding: 30px 28px 23px; }
   .cat-image { height: 260px; }
-  .cat-emoji { font-size: 6.5rem; }
+  .css-cat { width: 104px; height: 116px; }
   .record-form { grid-template-columns: 1fr 1fr; }
   .record-form label:last-of-type, .record-button { grid-column: 1 / -1; }
   .goal-setup-card, .today-card { padding: 28px; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; }
+  .cat-image, .css-cat, .cat-shadow { transform: none; }
+}

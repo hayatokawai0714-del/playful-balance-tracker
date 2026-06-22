@@ -21,7 +21,7 @@ const elements = {
   catCard: document.querySelector("#cat-card"),
   catImage: document.querySelector("#cat-image"),
   catFallback: document.querySelector("#cat-fallback"),
-  catEmoji: document.querySelector("#cat-emoji"),
+  catReaction: document.querySelector("#cat-reaction"),
   catStatus: document.querySelector("#cat-status"),
   catLine: document.querySelector("#cat-line"),
   affectionValue: document.querySelector("#affection-value"),
@@ -58,6 +58,7 @@ let affection = clamp(Number(localStorage.getItem(KEYS.affection)) || 0, 0, 100)
 const previousLogin = localStorage.getItem(KEYS.lastLogin);
 const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
 let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
+let reactionTimer = null;
 
 function loadJson(key, fallback) {
   try {
@@ -128,11 +129,11 @@ function getStreak() {
 }
 
 function getCatState() {
-  if (daysAway >= 10) return { label: "おでかけ中", className: "is-away", emoji: "🐾" };
-  if (daysAway >= 7) return { label: "かくれ中", className: "is-hidden", emoji: "🐈" };
-  if (daysAway >= 3) return { label: "少し不機嫌", className: "is-grumpy", emoji: "🐈" };
+  if (daysAway >= 10) return { label: "おでかけ中", className: "is-away" };
+  if (daysAway >= 7) return { label: "かくれ中", className: "is-hidden" };
+  if (daysAway >= 3) return { label: "少し不機嫌", className: "is-grumpy" };
   const distance = getAffectionState();
-  return { label: distance.label, className: "", emoji: "🐈" };
+  return { label: distance.label, className: "" };
 }
 
 function getAffectionState() {
@@ -172,12 +173,22 @@ function renderCat(forceNewLine = false) {
   const distance = getAffectionState();
   elements.catCard.className = `cat-card ${state.className} ${distance.className}`.trim();
   elements.catStatus.textContent = state.label;
-  elements.catEmoji.textContent = state.emoji;
   elements.affectionValue.textContent = affection;
   elements.affectionMeter.style.width = `${affection}%`;
   elements.affectionTrack.setAttribute("aria-valuenow", affection);
   elements.affectionLabel.textContent = distance.label;
   elements.catLine.textContent = chooseCatLine(forceNewLine);
+}
+
+function triggerCatReaction(className, symbol) {
+  clearTimeout(reactionTimer);
+  elements.catCard.classList.remove("cat--celebrate", "cat--gift");
+  void elements.catCard.offsetWidth;
+  elements.catReaction.textContent = symbol;
+  elements.catCard.classList.add(className);
+  reactionTimer = setTimeout(() => {
+    elements.catCard.classList.remove(className);
+  }, 950);
 }
 
 function renderGoal() {
@@ -222,6 +233,7 @@ function giveItem(key) {
   renderInventory();
   renderCat();
   elements.catLine.textContent = item.reply;
+  triggerCatReaction("cat--gift", "♥");
 }
 
 function renderSummary() {
@@ -325,6 +337,7 @@ elements.recordForm.addEventListener("submit", (event) => {
   saveCoreData();
   elements.recordForm.reset();
   renderAll(true);
+  triggerCatReaction("cat--celebrate", "✦");
 });
 
 elements.resetButton.addEventListener("click", () => {
