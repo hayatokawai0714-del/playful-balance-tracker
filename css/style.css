@@ -52,15 +52,6 @@ button { cursor: pointer; }
 .flower-vase { position: absolute; z-index: 2; top: 28%; left: 17%; width: 9%; height: 12%; border-radius: 45% 45% 35% 35%; background: #806147; box-shadow: 0 5px 0 #aa9063; }
 .flower-vase::before { position: absolute; bottom: 75%; left: 45%; width: 2px; height: 30px; background: #58704e; box-shadow: 7px -4px 0 #58704e; content: ""; transform: rotate(-9deg); }
 .kotatsu { position: absolute; right: 9%; bottom: 10%; width: 62%; height: 34%; border-radius: 8% 8% 18% 18%; background: radial-gradient(circle at 25% 56%, #f5cf7d 0 6%, transparent 7%), radial-gradient(circle at 72% 60%, #f5cf7d 0 6%, transparent 7%), #c8794f; box-shadow: inset 0 -9px rgba(129,70,43,.15), 0 -9px 0 -2px #9c7449, 0 -13px 0 1px #c49b64; }
-.stage-item { position: absolute; z-index: 4; pointer-events: none; }
-.food-bowl { bottom: 8%; left: 5%; width: 8%; height: 5%; border-radius: 20% 20% 45% 45%; background: radial-gradient(ellipse at 50% 15%, #745641 0 32%, #d4a64d 34% 55%, transparent 57%), #c68e36; box-shadow: 0 4px 0 rgba(89,59,35,.15); }
-.snack-dish { bottom: 18%; left: 40%; display: grid; place-items: center; width: 4%; aspect-ratio: 1; border-radius: 50%; background: #efd79f; color: #a87843; font-size: clamp(.45rem,1.2vw,.75rem); }
-.toy-ball { right: 38%; bottom: 9%; width: 5%; aspect-ratio: 1; border-radius: 50%; background: repeating-linear-gradient(45deg, #bd7780 0 5px, #efd0aa 6px 10px); box-shadow: 0 3px 5px rgba(91,62,42,.2); }
-.toy-mouse { bottom: 8%; left: 28%; width: 5%; height: 3%; border-radius: 60% 45% 45% 60%; background: #b49c82; }
-.cat-house { top: 37%; left: 7%; width: 14%; height: 22%; border-radius: 7px 7px 2px 2px; background: linear-gradient(145deg, #b07c4e, #8c5e3b); box-shadow: 0 -10px 0 -3px #c58b57; }
-.cat-house::after { position: absolute; right: 28%; bottom: 0; width: 42%; height: 45%; border-radius: 50% 50% 0 0; background: #554332; content: ""; }
-.cat-cushion { right: 5%; bottom: 5%; width: 13%; height: 7%; border-radius: 50%; background: #b7896b; box-shadow: inset 0 3px 7px rgba(255,255,255,.35); }
-.zabuton { right: 7%; bottom: 19%; width: 17%; height: 8%; border: 3px solid rgba(83,105,68,.24); border-radius: 42% 42% 35% 35%; background: #9ab38a; box-shadow: inset 0 0 0 4px rgba(255,255,255,.14), 0 5px 9px rgba(86,63,39,.12); }
 .cat-stage { position: absolute; z-index: 5; inset: 0; }
 .cat-character { --cat-x: 0px; --cat-scale: 1; position: absolute; opacity: 1; transform: translateX(var(--cat-x)) scale(var(--cat-scale)); transform-origin: center bottom; transition: opacity .3s, transform .35s; }
 .cat-position--veranda { bottom: -1%; left: 35%; width: 38%; height: 57%; }
@@ -70,14 +61,15 @@ button { cursor: pointer; }
 .cat-character-motion { z-index: 2; }
 .cat-stage.has-companion .cat-character--main { --cat-x: -18px; --cat-scale: .86; }
 .cat-character--friend { --cat-x: -4px; --cat-scale: .76; z-index: 3; opacity: .92; }
+.cat-character.has-cat-image::after { position: absolute; z-index: 0; bottom: 0; left: 19%; width: 62%; height: 9%; border-radius: 50%; background: rgba(73,63,43,.2); filter: blur(6px); content: ""; animation: shadowBreath 6s ease-in-out infinite; }
 .cat-character--friend.is-new { animation: kuroEnter 1.5s ease-out; }
 .cat-character-name { position: absolute; right: 24px; bottom: 8px; z-index: 5; max-width: 132px; padding: 2px 8px; border-radius: 999px; background: rgba(43,52,49,.78); color: #fff; font-size: .62rem; font-weight: 800; text-align: center; white-space: nowrap; }
-.cat-image { position: absolute; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 10px 10px rgba(72,68,55,.18)); animation: catIdle 4.8s ease-in-out infinite; }
+.cat-image { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 7px 7px rgba(72,68,55,.12)); transform-origin: center bottom; animation: catNaturalIdle 9.5s ease-in-out infinite; }
 .cat-sprite { max-width: none; }
-.cat-sprite--main { right: auto; bottom: -4%; left: -5%; width: 110%; }
-.cat-sprite--kuro { right: auto; bottom: -3%; left: -3%; width: 106%; }
+.cat-sprite--main { right: auto; bottom: -14%; left: -5%; width: 110%; }
+.cat-sprite--kuro { right: auto; bottom: -11%; left: -3%; width: 106%; animation-delay: -3.8s; }
 .cat-fallback { position: absolute; inset: 0; display: grid; place-items: center; }
-.css-cat { position: relative; z-index: 2; width: 92px; height: 104px; margin-top: 30px; filter: drop-shadow(0 10px 7px rgba(85,68,48,.18)); animation: catIdle 4.8s ease-in-out infinite; }
+.css-cat { position: relative; z-index: 2; width: 92px; height: 104px; margin-top: 30px; filter: drop-shadow(0 10px 7px rgba(85,68,48,.18)); transform-origin: center bottom; animation: catNaturalIdle 9.5s ease-in-out infinite; }
 .css-cat-body { position: absolute; right: 8px; bottom: 4px; width: 70px; height: 70px; border-radius: 48% 52% 42% 45%; background: linear-gradient(145deg, #e9a052, #c97b38); box-shadow: inset 10px 2px rgba(255,220,166,.2); }
 .css-cat-head { position: absolute; z-index: 2; top: 4px; left: 5px; width: 65px; height: 59px; border-radius: 45% 48% 48% 46%; background: linear-gradient(145deg, #f0aa5b, #d48640); box-shadow: inset 8px 3px rgba(255,226,180,.2); }
 .css-cat-ear { position: absolute; z-index: -1; top: -13px; width: 25px; height: 30px; border-radius: 5px 22px 4px 20px; background: #dc8d44; transform-origin: center bottom; animation: catEar 6.5s ease-in-out infinite; }
@@ -101,53 +93,48 @@ button { cursor: pointer; }
 .distance-used .cat-character-motion { --cat-scale: .96; }
 .distance-close .cat-character-motion { --cat-x: 5px; --cat-scale: 1.02; }
 .distance-loving .cat-character-motion { --cat-x: 9px; --cat-scale: 1.08; }
-.distance-wary .cat-image, .distance-wary .css-cat { animation-duration: 7s; animation-name: catIdleTiny; }
+.distance-wary .cat-image, .distance-wary .css-cat { animation-duration: 13s; }
 .distance-wary .css-cat-tail { animation-duration: 8s; }
-.distance-curious .cat-image, .distance-curious .css-cat { animation-duration: 6s; animation-name: catIdleTiny; }
+.distance-curious .cat-image, .distance-curious .css-cat { animation-duration: 11s; }
 .distance-close .css-cat-tail { animation-duration: 3.5s; }
 .distance-loving .css-cat-tail { animation-duration: 2.8s; }
 .cat-card.is-hidden .cat-character-motion { --cat-x: -18px; --cat-scale: .9; opacity: .35; }
 .cat-card.is-away .cat-character-motion { --cat-x: -32px; --cat-scale: .8; opacity: .08; }
 .cat-reaction { position: absolute; z-index: 5; top: 27px; right: 14px; color: #d97983; font-size: 1.5rem; opacity: 0; pointer-events: none; }
 
-.cat-card.cat--celebrate .cat-character-motion { animation: catCelebrate .85s ease-out; }
-.cat-card.cat--celebrate .cat-reaction { color: #dba549; animation: reactionPop .85s ease-out; }
-.cat-card.cat--celebrate .scene-sparkle { animation: sparklePop .85s ease-out; }
-.cat-card.cat--celebrate .speech-box, .cat-card.cat--gift-reaction .speech-box { animation: speechPop .65s ease-out; }
+.cat-card.cat--record-reaction { animation: recordFocus 1.15s ease-out; }
+.cat-card.cat--record-reaction .cat-character--main { animation: catRecordResponse 1.05s ease-out; }
+.cat-card.cat--record-reaction .cat-character--friend { animation: friendGiftBounce .9s ease-out; }
+.cat-card.cat--record-reaction .cat-reaction { color: #dba549; animation: reactionPop 1.05s ease-out; }
+.cat-card.cat--record-reaction .scene-sparkle { animation: sparklePop 1.05s ease-out; }
+.cat-card.cat--record-reaction .speech-box, .cat-card.cat--gift-reaction .speech-box { animation: speechPop .65s ease-out; }
 .cat-card.cat--gift-reaction { animation: roomFocus 1.4s ease-out; }
-.cat-card.cat--gift-reaction .cat-character-motion { animation: catGiftBounce .85s ease-out; }
+.cat-card.cat--gift-reaction .cat-character--main { animation: catGiftResponse 1.25s ease-out; }
 .cat-card.cat--gift-reaction .cat-reaction { animation: reactionPop 1.15s ease-out; }
 .cat-card.cat--gift-reaction .scene-sparkle { animation: sparklePop 1s ease-out; }
 .cat-card.cat--gift-reaction .css-cat-tail { animation: catTailHappy .2s ease-in-out 5 alternate; }
 .cat-card.cat--gift-reaction .cat-character--friend { animation: friendGiftBounce .8s ease-out; }
-.cat-card.cat--gift-reaction[data-gift-item="food"] .food-bowl { animation: itemGlow 1s ease-out; }
-.cat-card.cat--gift-reaction[data-gift-item="snack"] .snack-dish { animation: itemPop .9s ease-out; }
-.cat-card.cat--gift-reaction[data-gift-item="toy"] .toy-ball { animation: toyWiggle .75s ease-in-out; }
-.cat-card.cat--gift-reaction[data-gift-item="toy"] .toy-mouse { animation: toyWiggle .75s ease-in-out reverse; }
 .cat-card.cat--new-friend .cat-character--friend { animation: kuroEnter 1.5s ease-out; }
 
-@keyframes catIdle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@keyframes catIdleTiny { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+@keyframes catNaturalIdle { 0%,16%,100% { transform: rotate(0) scale(1); opacity: 1; } 28% { transform: rotate(0) scale(1.008,.992); } 44% { transform: rotate(0) scale(.997,1.006); } 68% { transform: rotate(0) scale(1); } 74% { transform: rotate(-1.4deg) scale(1.004,.996); } 80% { transform: rotate(1deg) scale(1); } 86% { transform: rotate(0) scaleY(.985); opacity: .97; } 90% { transform: rotate(0) scale(1); opacity: 1; } }
 @keyframes shadowBreath { 0%,100% { opacity: .8; transform: scaleX(1); } 50% { opacity: .6; transform: scaleX(.94); } }
 @keyframes catTail { 0%,72%,100% { transform: rotate(4deg); } 82% { transform: rotate(-8deg); } 91% { transform: rotate(10deg); } }
 @keyframes catTailHappy { from { transform: rotate(-10deg); } to { transform: rotate(16deg); } }
 @keyframes catEar { 0%,76%,100% { margin-top: 0; } 82% { margin-top: -2px; } 88% { margin-top: 1px; } }
 @keyframes catBlink { 0%,44%,48%,100% { transform: scaleY(1); } 46% { transform: scaleY(.08); } }
-@keyframes catCelebrate { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 38% { transform: translateX(calc(var(--cat-x) + 5px)) translateY(-13px) scale(calc(var(--cat-scale) + .04)); } 70% { transform: translateX(calc(var(--cat-x) + 8px)) translateY(-3px) scale(var(--cat-scale)); } }
-@keyframes catGiftBounce { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 35% { transform: translateX(calc(var(--cat-x) + 7px)) translateY(-8px) scale(calc(var(--cat-scale) + .05)); } 65% { transform: translateX(calc(var(--cat-x) + 4px)) scale(var(--cat-scale)); } }
+@keyframes catRecordResponse { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 32% { transform: translateX(calc(var(--cat-x) + 4px)) translateY(-10px) rotate(-2deg) scale(calc(var(--cat-scale) + .05)); } 64% { transform: translateX(calc(var(--cat-x) + 8px)) translateY(-2px) rotate(1deg) scale(calc(var(--cat-scale) + .02)); } }
+@keyframes catGiftResponse { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 25% { transform: translateX(calc(var(--cat-x) + 12px)) translateY(-7px) rotate(-2deg) scale(calc(var(--cat-scale) + .06)); } 52% { transform: translateX(calc(var(--cat-x) + 17px)) rotate(2deg) scale(calc(var(--cat-scale) + .04)); } 76% { transform: translateX(calc(var(--cat-x) + 8px)) rotate(-1deg) scale(calc(var(--cat-scale) + .02)); } }
 @keyframes reactionPop { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 30% { opacity: 1; transform: translateY(0) scale(1.15); } 100% { opacity: 0; transform: translateY(-18px) scale(.9); } }
 @keyframes sparklePop { 0%,100% { opacity: .3; transform: scale(.7); } 35% { opacity: 1; transform: scale(1.4); } }
 @keyframes speechPop { 0% { opacity: .65; transform: translateY(4px) scale(.98); } 100% { opacity: 1; transform: none; } }
 @keyframes roomFocus { 0%,100% { box-shadow: 0 18px 44px rgba(67,96,87,.12); } 35% { box-shadow: 0 18px 48px rgba(91,164,142,.25), 0 0 0 5px rgba(231,244,240,.9); } }
+@keyframes recordFocus { 0%,100% { box-shadow: 0 18px 44px rgba(91,72,48,.12); } 38% { box-shadow: 0 18px 48px rgba(214,170,93,.22), 0 0 0 4px rgba(255,245,213,.8); } }
 @keyframes newFriendGlow { 0%,100% { box-shadow: 0 18px 44px rgba(67,96,87,.12); } 40% { box-shadow: 0 18px 52px rgba(95,167,147,.28), 0 0 0 6px rgba(236,247,243,.95); } }
 @keyframes kuroEnter { 0% { opacity: 0; transform: translateX(105px) scale(.55); } 100% { opacity: .92; transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } }
 @keyframes friendGiftBounce { 0%,100% { transform: translateX(var(--cat-x)) scale(var(--cat-scale)); } 45% { transform: translateX(calc(var(--cat-x) - 3px)) translateY(-5px) scale(calc(var(--cat-scale) + .03)); } }
-@keyframes itemGlow { 0%,100% { filter: none; transform: scale(1); } 40% { filter: drop-shadow(0 0 8px #fff1a8); transform: scale(1.14); } }
-@keyframes itemPop { 0%,100% { transform: translateY(0) scale(1); } 45% { transform: translateY(-7px) scale(1.12); } }
-@keyframes toyWiggle { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-14deg) translateX(-3px); } 70% { transform: rotate(12deg) translateX(3px); } }
-.scene-sparkle { position: absolute; color: #fff; text-shadow: 0 2px 8px rgba(69,126,113,.2); }
-.sparkle-one { top: 5px; left: 4px; }
-.sparkle-two { top: 18px; right: 3px; font-size: .8rem; }
+.scene-sparkle { position: absolute; z-index: 8; color: #fff3b0; opacity: 0; text-shadow: 0 2px 8px rgba(69,126,113,.2); }
+.sparkle-one { top: 48%; left: 47%; }
+.sparkle-two { top: 43%; right: 17%; font-size: .8rem; }
 .cat-content { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; min-width: 0; }
 .cat-heading { order: 2; display: flex; grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid rgba(222,201,168,.7); border-radius: 16px; background: rgba(255,255,255,.7); }
 .cat-heading h2 { margin: 0; font-size: 1.25rem; line-height: 1.3; }

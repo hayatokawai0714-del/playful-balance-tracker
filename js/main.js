@@ -234,18 +234,15 @@ function renderCat(forceNewLine = false) {
   elements.catLine.textContent = kuroSpeaks ? chooseKuroLine() : chooseCatLine(forceNewLine);
 }
 
-function triggerCatReaction(className, symbol, itemKey = "") {
+function triggerCatReaction(className, symbol) {
   clearTimeout(reactionTimer);
-  elements.catCard.classList.remove("cat--celebrate", "cat--gift-reaction", "cat--new-friend");
-  if (itemKey) elements.catCard.dataset.giftItem = itemKey;
-  else delete elements.catCard.dataset.giftItem;
+  elements.catCard.classList.remove("cat--record-reaction", "cat--gift-reaction", "cat--new-friend");
   void elements.catCard.offsetWidth;
   elements.catReaction.textContent = symbol;
   elements.catCard.classList.add(className);
-  const duration = className === "cat--new-friend" ? 1700 : className === "cat--gift-reaction" ? 1500 : 950;
+  const duration = className === "cat--new-friend" ? 1700 : className === "cat--gift-reaction" ? 1500 : 1200;
   reactionTimer = setTimeout(() => {
     elements.catCard.classList.remove(className);
-    delete elements.catCard.dataset.giftItem;
   }, duration);
 }
 
@@ -354,7 +351,7 @@ function giveItem(key) {
   clearTimeout(reactionStartTimer);
   reactionStartTimer = setTimeout(() => {
     if (unlockedSecondCat) showSecondCatEvent();
-    else triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥", key);
+    else triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥");
   }, prefersReducedMotion() ? 0 : 320);
 }
 
@@ -422,11 +419,13 @@ function setupCatImage(image, fallback) {
   const showImage = () => {
     image.hidden = false;
     fallback.hidden = true;
+    image.parentElement.classList.add("has-cat-image");
   };
   const showFallback = () => {
     image.removeAttribute("src");
     image.hidden = true;
     fallback.hidden = false;
+    image.parentElement.classList.remove("has-cat-image");
   };
   image.addEventListener("load", showImage);
   image.addEventListener("error", showFallback);
@@ -502,7 +501,7 @@ elements.recordForm.addEventListener("submit", (event) => {
       ? "今日もがんばったね。少し近づいた気がする。"
       : "また記録したんだ。えらいね。";
     elements.speechName.textContent = "ミドリ";
-    triggerCatReaction("cat--celebrate", "✦");
+    triggerCatReaction("cat--record-reaction", "✦");
   }
 });
 
