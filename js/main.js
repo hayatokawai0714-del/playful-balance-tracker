@@ -8,17 +8,18 @@ const KEYS = {
   lastLogin: "neko-habit-last-login",
   absenceDays: "neko-habit-absence-days",
   dailyReward: "neko-habit-daily-reward",
+  giftLog: "neko-habit-gift-log",
   lastLine: "neko-habit-last-line"
 };
 
 const ITEMS = {
-  food: { name: "キャットフード", icon: "🥫", affection: 2, reply: "……もぐもぐ。悪くない、かも。" },
-  snack: { name: "おやつ", icon: "🐟", affection: 3, reply: "にゃ。もうひとつ、ある？" },
-  toy: { name: "おもちゃ", icon: "🧶", affection: 5, reply: "……！ ちょっとだけ遊ぶ。" }
+  food: { name: "キャットフード", icon: "🥫", affection: 2, replies: { low: ["……たべる。", "少し離れて、もぐもぐ。", "これ、すきかも。"], mid: ["これ、すきかも。", "ありがと。もぐもぐ。", "もう少し、ある？"], high: ["ありがと。となりで食べる。", "これ、だいすき。", "いっしょに、もぐもぐ。"] } },
+  snack: { name: "おやつ", icon: "🐟", affection: 3, replies: { low: ["にゃ……。", "そっと、もらう。", "ちょっとだけ、うれしい。"], mid: ["にゃ……♪", "また、くれる？", "これ、すき。"], high: ["にゃー。うれしい。", "もっと近くで、たべる。", "ありがと。ごろごろ。"] } },
+  toy: { name: "おもちゃ", icon: "🧶", affection: 5, replies: { low: ["これ、なに？", "……ちょん。", "少しだけ、あそぶ。"], mid: ["あそぶ？", "……もう一回。", "ころころ、たのしい。"], high: ["いっしょに、あそぼ。", "もう一回！", "これ、だいすき。"] } }
 };
 
 const elements = {
-  catCard: document.querySelector("#cat-card"),
+  catCard: document.querySelector("#catCompanion"),
   catImage: document.querySelector("#cat-image"),
   catFallback: document.querySelector("#cat-fallback"),
   catReaction: document.querySelector("#cat-reaction"),
@@ -52,13 +53,16 @@ const elements = {
 let goal = localStorage.getItem(KEYS.goal) || "";
 const loadedRecords = loadJson(KEYS.records, []);
 const loadedInventory = loadJson(KEYS.inventory, {});
+const loadedGiftLogs = loadJson(KEYS.giftLog, []);
 let records = Array.isArray(loadedRecords) ? loadedRecords : [];
 let inventory = { food: 0, snack: 0, toy: 0, ...(loadedInventory && typeof loadedInventory === "object" ? loadedInventory : {}) };
+let giftLogs = Array.isArray(loadedGiftLogs) ? loadedGiftLogs : [];
 let affection = clamp(Number(localStorage.getItem(KEYS.affection)) || 0, 0, 100);
 const previousLogin = localStorage.getItem(KEYS.lastLogin);
 const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
 let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
 let reactionTimer = null;
+let reactionStartTimer = null;
 
 function loadJson(key, fallback) {
   try {
@@ -182,13 +186,32 @@ function renderCat(forceNewLine = false) {
 
 function triggerCatReaction(className, symbol) {
   clearTimeout(reactionTimer);
-  elements.catCard.classList.remove("cat--celebrate", "cat--gift");
+  elements.catCard.classList.remove("cat--celebrate", "cat--gift-reaction");
   void elements.catCard.offsetWidth;
   elements.catReaction.textContent = symbol;
   elements.catCard.classList.add(className);
+  const duration = className === "cat--gift-reaction" ? 1500 : 950;
   reactionTimer = setTimeout(() => {
     elements.catCard.classList.remove(className);
-  }, 950);
+  }, duration);
+}
+
+function getGiftReply(item) {
+  const level = affection >= 70 ? "high" : affection >= 30 ? "mid" : "low";
+  const replies = item.replies[level];
+  return replies[Math.floor(Math.random() * replies.length)];
+}
+
+function prefersReducedMotion() {
+  return Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+}
+
+function focusCatAfterGift() {
+  const reduceMotion = prefersReducedMotion();
+  elements.catCard.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: reduceMotion ? "nearest" : "start"
+  });
 }
 
 function renderGoal() {
@@ -229,11 +252,28 @@ function giveItem(key) {
   if (!item || Number(inventory[key] || 0) < 1 || daysAway >= 10) return;
   inventory[key] -= 1;
   affection = clamp(affection + item.affection, 0, 100);
+  const reply = getGiftReply(item);
+  giftLogs.push({
+    id: `${Date.now()}-${Math.random()}`,
+    date: getLocalDate(),
+    itemKey: key,
+    itemName: item.name,
+    icon: item.icon,
+    response: reply,
+    createdAt: new Date().toISOString()
+  });
+  giftLogs = giftLogs.slice(-30);
+  localStorage.setItem(KEYS.giftLog, JSON.stringify(giftLogs));
   saveCoreData();
   renderInventory();
   renderCat();
-  elements.catLine.textContent = item.reply;
-  triggerCatReaction("cat--gift", "♥");
+  renderHistory();
+  elements.catLine.textContent = reply;
+  focusCatAfterGift();
+  clearTimeout(reactionStartTimer);
+  reactionStartTimer = setTimeout(() => {
+    triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥");
+  }, prefersReducedMotion() ? 0 : 320);
 }
 
 function renderSummary() {
@@ -251,34 +291,39 @@ function renderSummary() {
 
 function renderHistory() {
   elements.historyList.replaceChildren();
-  [...records].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5).forEach((record) => {
+  const activities = [
+    ...records.map((record) => ({ ...record, entryType: "record" })),
+    ...giftLogs.map((gift) => ({ ...gift, entryType: "gift" }))
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  activities.slice(0, 5).forEach((record) => {
     const article = document.createElement("article");
-    article.className = "history-card";
+    article.className = `history-card${record.entryType === "gift" ? " is-gift-log" : ""}`;
     const head = document.createElement("div");
     head.className = "history-card-head";
     const title = document.createElement("h3");
-    title.textContent = record.action;
+    title.textContent = record.entryType === "gift" ? `${record.icon} ${record.itemName}をプレゼント` : record.action;
     const date = document.createElement("span");
     date.className = "history-date";
     date.textContent = record.date;
     head.append(title, date);
     article.append(head);
-    if (record.amount) {
+    if (record.entryType === "record" && record.amount) {
       const amount = document.createElement("span");
       amount.className = "history-amount";
       amount.textContent = record.amount;
       article.append(amount);
     }
-    if (record.memo) {
+    const detail = record.entryType === "gift" ? `迷い猫「${record.response}」` : record.memo;
+    if (detail) {
       const memo = document.createElement("p");
       memo.className = "history-memo";
-      memo.textContent = record.memo;
+      memo.textContent = detail;
       article.append(memo);
     }
     elements.historyList.append(article);
   });
-  elements.emptyMessage.hidden = records.length > 0;
-  elements.recordCount.textContent = `${records.length}件`;
+  elements.emptyMessage.hidden = activities.length > 0;
+  elements.recordCount.textContent = `${activities.length}件`;
 }
 
 function renderAll(forceNewLine = false) {
@@ -346,6 +391,7 @@ elements.resetButton.addEventListener("click", () => {
   goal = "";
   records = [];
   inventory = { food: 0, snack: 0, toy: 0 };
+  giftLogs = [];
   affection = 0;
   daysAway = 0;
   renderAll();
