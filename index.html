@@ -85,9 +85,19 @@
         </div>
         <div class="cat-heading">
           <span id="cat-status" class="status-badge">警戒中</span>
-          <div>
+          <div class="cat-identity">
             <h2 id="cat-name">ミドリ</h2>
             <p>茶トラ・いつの間にか家にいた</p>
+            <p id="cat-name-hint" class="cat-name-hint">もう少し仲良くなったら、名前をつけられます</p>
+            <button id="cat-name-edit-button" class="cat-name-edit-button" type="button" hidden>名前をつける</button>
+            <form id="cat-name-form" class="cat-name-form" hidden>
+              <label for="cat-name-input">猫の新しい名前</label>
+              <div>
+                <input id="cat-name-input" name="catName" type="text" maxlength="10" autocomplete="off">
+                <button type="submit">保存</button>
+              </div>
+            </form>
+            <p id="cat-name-message" class="cat-name-message" aria-live="polite"></p>
           </div>
         </div>
         <div id="room-residents" class="room-residents" hidden>

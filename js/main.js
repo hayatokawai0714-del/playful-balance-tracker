@@ -12,7 +12,8 @@ const KEYS = {
   giftLog: "neko-habit-gift-log",
   cats: "neko-habit-cats",
   secondCatUnlocked: "neko-habit-second-cat-unlocked",
-  lastLine: "neko-habit-last-line"
+  lastLine: "neko-habit-last-line",
+  catName: "neko-habit-main-cat-name"
 };
 
 const MAIN_CAT = { id: "midori", name: "ミドリ", type: "茶トラ", personality: "少し慎重", affection: 0, unlocked: true };
@@ -35,6 +36,12 @@ const elements = {
   kuroFallback: document.querySelector("#kuro-fallback"),
   catReaction: document.querySelector("#cat-reaction"),
   catStatus: document.querySelector("#cat-status"),
+  catName: document.querySelector("#cat-name"),
+  catNameHint: document.querySelector("#cat-name-hint"),
+  catNameEditButton: document.querySelector("#cat-name-edit-button"),
+  catNameForm: document.querySelector("#cat-name-form"),
+  catNameInput: document.querySelector("#cat-name-input"),
+  catNameMessage: document.querySelector("#cat-name-message"),
   catLine: document.querySelector("#cat-line"),
   speechName: document.querySelector("#speech-name"),
   affectionValue: document.querySelector("#affection-value"),
@@ -81,6 +88,8 @@ let cats = Array.isArray(loadedCats) ? loadedCats : [];
 let secondCatUnlocked = localStorage.getItem(KEYS.secondCatUnlocked) === "true" || cats.some((cat) => cat.id === SECOND_CAT.id);
 if (!cats.some((cat) => cat.id === MAIN_CAT.id)) cats.unshift({ ...MAIN_CAT, affection });
 if (secondCatUnlocked && !cats.some((cat) => cat.id === SECOND_CAT.id)) cats.push({ ...SECOND_CAT });
+const savedMainCatName = String(localStorage.getItem(KEYS.catName) || cats.find((cat) => cat.id === MAIN_CAT.id)?.name || MAIN_CAT.name).trim();
+let mainCatName = [...savedMainCatName].slice(0, 10).join("") || MAIN_CAT.name;
 const previousLogin = localStorage.getItem(KEYS.lastLogin);
 const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
 let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
@@ -124,7 +133,10 @@ function saveCoreData() {
 
 function saveCatData() {
   const mainCat = cats.find((cat) => cat.id === MAIN_CAT.id);
-  if (mainCat) mainCat.affection = affection;
+  if (mainCat) {
+    mainCat.affection = affection;
+    mainCat.name = mainCatName;
+  }
   localStorage.setItem(KEYS.cats, JSON.stringify(cats));
   localStorage.setItem(KEYS.secondCatUnlocked, String(secondCatUnlocked));
 }
@@ -212,7 +224,7 @@ function chooseCatLine(forceNew = false) {
 }
 
 function chooseKuroLine() {
-  const candidates = ["……ここ、あったかい。", "ミドリが、ここなら安心って。", "少しだけ、いてもいい？"];
+  const candidates = ["……ここ、あったかい。", `${mainCatName}が、ここなら安心って。`, "少しだけ、いてもいい？"];
   const previous = localStorage.getItem(KEYS.lastLine);
   const pool = candidates.filter((line) => line !== previous);
   const line = pool[Math.floor(Math.random() * pool.length)] || candidates[0];
@@ -225,13 +237,27 @@ function renderCat(forceNewLine = false) {
   const distance = getAffectionState();
   elements.catCard.className = `cat-card ${state.className} ${distance.className}`.trim();
   elements.catStatus.textContent = state.label;
+  elements.catName.textContent = mainCatName;
+  elements.catImage.alt = `茶トラ猫の${mainCatName}`;
   elements.affectionValue.textContent = affection;
   elements.affectionMeter.style.width = `${affection}%`;
   elements.affectionTrack.setAttribute("aria-valuenow", affection);
   elements.affectionLabel.textContent = distance.label;
   const kuroSpeaks = secondCatUnlocked && daysAway < 3 && !forceNewLine && Math.random() < 0.22;
-  elements.speechName.textContent = kuroSpeaks ? "クロ" : "ミドリ";
+  elements.speechName.textContent = kuroSpeaks ? "クロ" : mainCatName;
   elements.catLine.textContent = kuroSpeaks ? chooseKuroLine() : chooseCatLine(forceNewLine);
+  renderCatNaming();
+}
+
+function renderCatNaming() {
+  const canName = affection >= 40;
+  const hasCustomName = Boolean(localStorage.getItem(KEYS.catName));
+  elements.catNameHint.textContent = canName
+    ? "少しなついてきました。名前をつけてあげられます"
+    : "もう少し仲良くなったら、名前をつけられます";
+  elements.catNameEditButton.hidden = !canName;
+  elements.catNameEditButton.textContent = hasCustomName ? "名前を変更" : "名前をつける";
+  if (!canName) elements.catNameForm.hidden = true;
 }
 
 function triggerCatReaction(className, symbol) {
@@ -345,7 +371,7 @@ function giveItem(key) {
   renderCat();
   renderCompanions();
   renderHistory();
-  elements.speechName.textContent = "ミドリ";
+  elements.speechName.textContent = mainCatName;
   elements.catLine.textContent = reply;
   focusCatAfterGift();
   clearTimeout(reactionStartTimer);
@@ -393,7 +419,7 @@ function renderHistory() {
       amount.textContent = record.amount;
       article.append(amount);
     }
-    const detail = record.entryType === "gift" ? `ミドリ「${record.response}」` : record.memo;
+    const detail = record.entryType === "gift" ? `${mainCatName}「${record.response}」` : record.memo;
     if (detail) {
       const memo = document.createElement("p");
       memo.className = "history-memo";
@@ -458,6 +484,38 @@ function setupRoomBackground() {
 
 setupRoomBackground();
 
+elements.catNameEditButton.addEventListener("click", () => {
+  if (affection < 40) return;
+  const willOpen = elements.catNameForm.hidden;
+  elements.catNameForm.hidden = !willOpen;
+  elements.catNameMessage.textContent = "";
+  if (willOpen) {
+    elements.catNameInput.value = mainCatName;
+    elements.catNameInput.focus();
+  }
+});
+
+elements.catNameForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (affection < 40) return;
+  const nextName = elements.catNameInput.value.trim();
+  if (!nextName) {
+    elements.catNameMessage.textContent = "名前を入力してください。";
+    return;
+  }
+  if ([...nextName].length > 10) {
+    elements.catNameMessage.textContent = "名前は10文字以内にしてください。";
+    return;
+  }
+  mainCatName = nextName;
+  localStorage.setItem(KEYS.catName, mainCatName);
+  saveCatData();
+  elements.catNameForm.hidden = true;
+  renderCat(true);
+  elements.speechName.textContent = mainCatName;
+  elements.catNameMessage.textContent = "名前を保存しました。";
+});
+
 elements.goalForm.addEventListener("submit", (event) => {
   event.preventDefault();
   goal = elements.goalInput.value.trim();
@@ -500,7 +558,7 @@ elements.recordForm.addEventListener("submit", (event) => {
     elements.catLine.textContent = receivesAffection
       ? "今日もがんばったね。少し近づいた気がする。"
       : "また記録したんだ。えらいね。";
-    elements.speechName.textContent = "ミドリ";
+    elements.speechName.textContent = mainCatName;
     triggerCatReaction("cat--record-reaction", "✦");
   }
 });
@@ -514,8 +572,11 @@ elements.resetButton.addEventListener("click", () => {
   giftLogs = [];
   affection = 0;
   cats = [{ ...MAIN_CAT }];
+  mainCatName = MAIN_CAT.name;
   secondCatUnlocked = false;
   daysAway = 0;
+  elements.catNameInput.value = "";
+  elements.catNameMessage.textContent = "";
   renderAll();
   elements.bonusMessage.textContent = "リセットしました。次回アクセス時に新しいボーナスを受け取れます。";
 });
