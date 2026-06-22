@@ -8,9 +8,15 @@ const KEYS = {
   lastLogin: "neko-habit-last-login",
   absenceDays: "neko-habit-absence-days",
   dailyReward: "neko-habit-daily-reward",
+  dailyAffectionReward: "neko-habit-daily-affection-reward",
   giftLog: "neko-habit-gift-log",
+  cats: "neko-habit-cats",
+  secondCatUnlocked: "neko-habit-second-cat-unlocked",
   lastLine: "neko-habit-last-line"
 };
+
+const MAIN_CAT = { id: "midori", name: "ミドリ", type: "茶トラ", personality: "少し慎重", affection: 0, unlocked: true };
+const SECOND_CAT = { id: "kuro", name: "クロ", type: "黒猫", personality: "少しクール", affection: 0, unlocked: true };
 
 const ITEMS = {
   food: { name: "キャットフード", icon: "🥫", affection: 2, replies: { low: ["……たべる。", "少し離れて、もぐもぐ。", "これ、すきかも。"], mid: ["これ、すきかも。", "ありがと。もぐもぐ。", "もう少し、ある？"], high: ["ありがと。となりで食べる。", "これ、だいすき。", "いっしょに、もぐもぐ。"] } },
@@ -31,6 +37,14 @@ const elements = {
   affectionLabel: document.querySelector("#affection-label"),
   catTodayMessage: document.querySelector("#cat-today-message"),
   catStreakCount: document.querySelector("#cat-streak-count"),
+  newCatHint: document.querySelector("#new-cat-hint"),
+  newCatEvent: document.querySelector("#new-cat-event"),
+  companionSection: document.querySelector("#companion-section"),
+  companionCard: document.querySelector(".companion-card"),
+  secondCatName: document.querySelector("#second-cat-name"),
+  secondCatType: document.querySelector("#second-cat-type"),
+  secondCatPersonality: document.querySelector("#second-cat-personality"),
+  secondCatAffection: document.querySelector("#second-cat-affection"),
   goalSetupCard: document.querySelector("#goal-setup-card"),
   goalForm: document.querySelector("#goal-form"),
   goalInput: document.querySelector("#goal-input"),
@@ -54,10 +68,15 @@ let goal = localStorage.getItem(KEYS.goal) || "";
 const loadedRecords = loadJson(KEYS.records, []);
 const loadedInventory = loadJson(KEYS.inventory, {});
 const loadedGiftLogs = loadJson(KEYS.giftLog, []);
+const loadedCats = loadJson(KEYS.cats, []);
 let records = Array.isArray(loadedRecords) ? loadedRecords : [];
 let inventory = { food: 0, snack: 0, toy: 0, ...(loadedInventory && typeof loadedInventory === "object" ? loadedInventory : {}) };
 let giftLogs = Array.isArray(loadedGiftLogs) ? loadedGiftLogs : [];
 let affection = clamp(Number(localStorage.getItem(KEYS.affection)) || 0, 0, 100);
+let cats = Array.isArray(loadedCats) ? loadedCats : [];
+let secondCatUnlocked = localStorage.getItem(KEYS.secondCatUnlocked) === "true" || cats.some((cat) => cat.id === SECOND_CAT.id);
+if (!cats.some((cat) => cat.id === MAIN_CAT.id)) cats.unshift({ ...MAIN_CAT, affection });
+if (secondCatUnlocked && !cats.some((cat) => cat.id === SECOND_CAT.id)) cats.push({ ...SECOND_CAT });
 const previousLogin = localStorage.getItem(KEYS.lastLogin);
 const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
 let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
@@ -96,6 +115,22 @@ function saveCoreData() {
   localStorage.setItem(KEYS.inventory, JSON.stringify(inventory));
   localStorage.setItem(KEYS.affection, String(affection));
   localStorage.setItem(KEYS.absenceDays, String(daysAway));
+  saveCatData();
+}
+
+function saveCatData() {
+  const mainCat = cats.find((cat) => cat.id === MAIN_CAT.id);
+  if (mainCat) mainCat.affection = affection;
+  localStorage.setItem(KEYS.cats, JSON.stringify(cats));
+  localStorage.setItem(KEYS.secondCatUnlocked, String(secondCatUnlocked));
+}
+
+function maybeUnlockSecondCat() {
+  if (affection < 100 || secondCatUnlocked) return false;
+  secondCatUnlocked = true;
+  if (!cats.some((cat) => cat.id === SECOND_CAT.id)) cats.push({ ...SECOND_CAT });
+  saveCatData();
+  return true;
 }
 
 function grantLoginBonus() {
@@ -186,14 +221,41 @@ function renderCat(forceNewLine = false) {
 
 function triggerCatReaction(className, symbol) {
   clearTimeout(reactionTimer);
-  elements.catCard.classList.remove("cat--celebrate", "cat--gift-reaction");
+  elements.catCard.classList.remove("cat--celebrate", "cat--gift-reaction", "cat--new-friend");
   void elements.catCard.offsetWidth;
   elements.catReaction.textContent = symbol;
   elements.catCard.classList.add(className);
-  const duration = className === "cat--gift-reaction" ? 1500 : 950;
+  const duration = className === "cat--new-friend" ? 1700 : className === "cat--gift-reaction" ? 1500 : 950;
   reactionTimer = setTimeout(() => {
     elements.catCard.classList.remove(className);
   }, duration);
+}
+
+function renderCompanions() {
+  const secondCat = cats.find((cat) => cat.id === SECOND_CAT.id);
+  elements.newCatHint.hidden = secondCatUnlocked;
+  elements.newCatEvent.hidden = !secondCatUnlocked;
+  elements.companionSection.hidden = !secondCatUnlocked;
+  if (!secondCat) return;
+  elements.secondCatName.textContent = secondCat.name;
+  elements.secondCatType.textContent = secondCat.type;
+  elements.secondCatPersonality.textContent = secondCat.personality;
+  elements.secondCatAffection.textContent = clamp(Number(secondCat.affection) || 0, 0, 100);
+}
+
+function showSecondCatEvent() {
+  const message = "ミドリと仲良くなったことで安心したのか、もう1匹の猫が部屋にやってきました。";
+  elements.catLine.textContent = message;
+  elements.newCatEvent.classList.remove("is-new");
+  elements.companionCard.classList.remove("is-new");
+  void elements.newCatEvent.offsetWidth;
+  elements.newCatEvent.classList.add("is-new");
+  elements.companionCard.classList.add("is-new");
+  triggerCatReaction("cat--new-friend", "🐾 ✦");
+  setTimeout(() => {
+    elements.newCatEvent.classList.remove("is-new");
+    elements.companionCard.classList.remove("is-new");
+  }, 1800);
 }
 
 function getGiftReply(item) {
@@ -252,6 +314,7 @@ function giveItem(key) {
   if (!item || Number(inventory[key] || 0) < 1 || daysAway >= 10) return;
   inventory[key] -= 1;
   affection = clamp(affection + item.affection, 0, 100);
+  const unlockedSecondCat = maybeUnlockSecondCat();
   const reply = getGiftReply(item);
   giftLogs.push({
     id: `${Date.now()}-${Math.random()}`,
@@ -267,12 +330,14 @@ function giveItem(key) {
   saveCoreData();
   renderInventory();
   renderCat();
+  renderCompanions();
   renderHistory();
   elements.catLine.textContent = reply;
   focusCatAfterGift();
   clearTimeout(reactionStartTimer);
   reactionStartTimer = setTimeout(() => {
-    triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥");
+    if (unlockedSecondCat) showSecondCatEvent();
+    else triggerCatReaction("cat--gift-reaction", affection >= 70 ? "♥ ✦" : "♥");
   }, prefersReducedMotion() ? 0 : 320);
 }
 
@@ -313,7 +378,7 @@ function renderHistory() {
       amount.textContent = record.amount;
       article.append(amount);
     }
-    const detail = record.entryType === "gift" ? `迷い猫「${record.response}」` : record.memo;
+    const detail = record.entryType === "gift" ? `ミドリ「${record.response}」` : record.memo;
     if (detail) {
       const memo = document.createElement("p");
       memo.className = "history-memo";
@@ -329,6 +394,7 @@ function renderHistory() {
 function renderAll(forceNewLine = false) {
   renderGoal();
   renderCat(forceNewLine);
+  renderCompanions();
   renderInventory();
   renderSummary();
   renderHistory();
@@ -369,20 +435,33 @@ elements.editGoalButton.addEventListener("click", () => {
 elements.recordForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.recordForm);
+  const today = getLocalDate();
+  const receivesAffection = localStorage.getItem(KEYS.dailyAffectionReward) !== today;
   records.push({
     id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-    date: getLocalDate(),
+    date: today,
     action: String(formData.get("action")).trim() || goal || "今日の目標に取り組んだ",
     amount: String(formData.get("amount")).trim(),
     memo: String(formData.get("memo")).trim(),
     createdAt: new Date().toISOString()
   });
-  affection = clamp(affection + 3, 0, 100);
+  if (receivesAffection) {
+    affection = clamp(affection + 3, 0, 100);
+    localStorage.setItem(KEYS.dailyAffectionReward, today);
+  }
+  const unlockedSecondCat = maybeUnlockSecondCat();
   daysAway = 0;
   saveCoreData();
   elements.recordForm.reset();
   renderAll(true);
-  triggerCatReaction("cat--celebrate", "✦");
+  if (unlockedSecondCat) {
+    showSecondCatEvent();
+  } else {
+    elements.catLine.textContent = receivesAffection
+      ? "今日もがんばったね。少し近づいた気がする。"
+      : "また記録したんだ。えらいね。";
+    triggerCatReaction("cat--celebrate", "✦");
+  }
 });
 
 elements.resetButton.addEventListener("click", () => {
@@ -393,10 +472,14 @@ elements.resetButton.addEventListener("click", () => {
   inventory = { food: 0, snack: 0, toy: 0 };
   giftLogs = [];
   affection = 0;
+  cats = [{ ...MAIN_CAT }];
+  secondCatUnlocked = false;
   daysAway = 0;
   renderAll();
   elements.bonusMessage.textContent = "リセットしました。次回アクセス時に新しいボーナスを受け取れます。";
 });
 
+const unlockedOnLoad = maybeUnlockSecondCat();
 grantLoginBonus();
 renderAll();
+if (unlockedOnLoad) showSecondCatEvent();

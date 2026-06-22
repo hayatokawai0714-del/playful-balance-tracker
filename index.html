@@ -26,7 +26,7 @@
         <span class="cat-cushion" aria-hidden="true"></span>
         <span id="cat-reaction" class="cat-reaction" aria-hidden="true">♥</span>
         <div class="cat-character-motion">
-          <img id="cat-image" class="cat-image" src="assets/cats/stray-cat.png" alt="茶トラの迷い猫" hidden>
+          <img id="cat-image" class="cat-image" src="assets/cats/stray-cat.png" alt="茶トラ猫のミドリ" hidden>
           <div id="cat-fallback" class="cat-fallback" aria-hidden="true">
             <div class="css-cat">
               <span class="css-cat-tail"></span>
@@ -47,7 +47,7 @@
         <div class="cat-heading">
           <span id="cat-status" class="status-badge">警戒中</span>
           <div>
-            <h2 id="cat-name">迷い猫</h2>
+            <h2 id="cat-name">ミドリ</h2>
             <p>茶トラ・いつの間にか家にいた</p>
           </div>
         </div>
@@ -59,7 +59,7 @@
           <span id="affection-label" class="affection-label">警戒中</span>
         </div>
         <div class="speech-box">
-          <span class="speech-name">迷い猫</span>
+          <span class="speech-name">ミドリ</span>
           <p id="cat-line" aria-live="polite">・・・</p>
         </div>
         <div class="cat-daily-status">
@@ -67,6 +67,30 @@
           <small>連続 <b id="cat-streak-count">0</b>日</small>
         </div>
       </div>
+    </section>
+
+    <p id="new-cat-hint" class="new-cat-hint">なかよし度が100になると、新しい猫が来るかも。</p>
+
+    <section id="new-cat-event" class="new-cat-event" aria-labelledby="new-cat-event-title" hidden>
+      <span class="event-icon" aria-hidden="true">🐾</span>
+      <div>
+        <p class="card-kicker">NEW FRIEND</p>
+        <h2 id="new-cat-event-title">新しい猫がやってきました</h2>
+        <p>ミドリと仲良くなったことで安心したのか、もう1匹の猫が部屋にやってきました。</p>
+      </div>
+    </section>
+
+    <section id="companion-section" class="companion-section" aria-labelledby="companion-title" hidden>
+      <h2 id="companion-title" class="section-title">仲間の猫</h2>
+      <article class="companion-card">
+        <div class="companion-cat" aria-hidden="true"><span>🐈‍⬛</span></div>
+        <div>
+          <span class="status-badge">新しい仲間</span>
+          <h3 id="second-cat-name">クロ</h3>
+          <p><span id="second-cat-type">黒猫</span>・<span id="second-cat-personality">少しクール</span></p>
+          <small>なかよし度 <b id="second-cat-affection">0</b> / 100</small>
+        </div>
+      </article>
     </section>
 
     <section id="goal-setup-card" class="card goal-setup-card" aria-labelledby="goal-setup-title">
