@@ -16,7 +16,7 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: radial-gradient(circle at 12% 0, #dcefe9 0, transparent 340px), linear-gradient(180deg, #fbfcfa, var(--background)); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+body { margin: 0; min-width: 320px; scroll-padding-top: calc(12px + env(safe-area-inset-top)); background: radial-gradient(circle at 12% 0, #dcefe9 0, transparent 340px), linear-gradient(180deg, #fbfcfa, var(--background)); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
 button, input, textarea { font: inherit; }
 button { cursor: pointer; }
 [hidden] { display: none !important; }
@@ -27,11 +27,16 @@ button { cursor: pointer; }
 .eyebrow, .card-kicker { margin: 0; color: var(--mint); font-size: .68rem; font-weight: 850; letter-spacing: .16em; }
 .card, .summary-card, .history-card, .cat-card { border: 1px solid rgba(216,232,227,.96); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }
 
-.cat-card { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; overflow: hidden; min-height: 430px; padding: 20px 17px 18px; scroll-margin-top: 18px; border-color: #e5d4b9; background: linear-gradient(145deg, #f8f8ef 0, #fffdf8 52%, #f1e3ca 100%); box-shadow: 0 18px 44px rgba(91,72,48,.12); }
+.cat-sticky-area { position: sticky; top: calc(10px + env(safe-area-inset-top)); z-index: 30; margin-bottom: 12px; padding: 8px; scroll-margin-top: calc(12px + env(safe-area-inset-top)); border: 1px solid rgba(207,181,141,.84); border-radius: 32px 32px 24px 24px; background: rgba(255,253,248,.92); box-shadow: 0 14px 34px rgba(73,61,43,.16); backdrop-filter: blur(8px); }
+.cat-sticky-area::after { position: absolute; right: 24px; bottom: -8px; left: 24px; height: 16px; border-radius: 50%; background: rgba(91,72,48,.08); filter: blur(9px); content: ""; pointer-events: none; }
+.cat-card { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; overflow: hidden; min-height: 0; padding: 16px 17px 18px; scroll-margin-top: 18px; border-color: #e5d4b9; background: linear-gradient(145deg, #f8f8ef 0, #fffdf8 52%, #f1e3ca 100%); box-shadow: 0 18px 44px rgba(91,72,48,.12); }
 .cat-card.is-grumpy { background: linear-gradient(140deg, #fbfcfb, #e8e7dd); }
 .cat-card.is-hidden { background: linear-gradient(140deg, #fafafa, #e7e9e6); }
 .cat-card.is-away { background: linear-gradient(140deg, #fafafa, #ece9e5); }
-.cat-scene { position: relative; isolation: isolate; width: 100%; height: clamp(210px,56.25vw,380px); overflow: hidden; border: 1px solid #cfb58d; border-radius: 30px 30px 22px 22px; background: #d8c99c; box-shadow: inset 0 1px rgba(255,255,255,.9), inset 0 -14px 28px rgba(91,69,42,.11); }
+.cat-sticky-area.is-grumpy { background: rgba(250,250,243,.94); }
+.cat-sticky-area.is-hidden { background: rgba(247,248,245,.94); }
+.cat-sticky-area.is-away { background: rgba(246,246,244,.94); }
+.cat-scene { position: relative; isolation: isolate; width: 100%; height: clamp(185px,50vw,350px); overflow: hidden; border: 1px solid #cfb58d; border-radius: 26px 26px 19px 19px; background: #d8c99c; box-shadow: inset 0 1px rgba(255,255,255,.9), inset 0 -14px 28px rgba(91,69,42,.11); }
 .room-background-image { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; }
 .room-background-layer { position: absolute; z-index: 0; inset: 0; opacity: 1; transition: opacity .25s; }
 .has-room-background .room-background-layer { opacity: 0; }
@@ -102,19 +107,19 @@ button { cursor: pointer; }
 .cat-card.is-away .cat-character-motion { --cat-x: -32px; --cat-scale: .8; opacity: .08; }
 .cat-reaction { position: absolute; z-index: 5; top: 27px; right: 14px; color: #d97983; font-size: 1.5rem; opacity: 0; pointer-events: none; }
 
-.cat-card.cat--record-reaction { animation: recordFocus 1.15s ease-out; }
-.cat-card.cat--record-reaction .cat-character--main { animation: catRecordResponse 1.05s ease-out; }
-.cat-card.cat--record-reaction .cat-character--friend { animation: friendGiftBounce .9s ease-out; }
-.cat-card.cat--record-reaction .cat-reaction { color: #dba549; animation: reactionPop 1.05s ease-out; }
-.cat-card.cat--record-reaction .scene-sparkle { animation: sparklePop 1.05s ease-out; }
+.cat-card.cat--record-reaction, .cat-sticky-area.cat--record-reaction { animation: recordFocus 1.15s ease-out; }
+.cat-card.cat--record-reaction .cat-character--main, .cat-sticky-area.cat--record-reaction .cat-character--main { animation: catRecordResponse 1.05s ease-out; }
+.cat-card.cat--record-reaction .cat-character--friend, .cat-sticky-area.cat--record-reaction .cat-character--friend { animation: friendGiftBounce .9s ease-out; }
+.cat-card.cat--record-reaction .cat-reaction, .cat-sticky-area.cat--record-reaction .cat-reaction { color: #dba549; animation: reactionPop 1.05s ease-out; }
+.cat-card.cat--record-reaction .scene-sparkle, .cat-sticky-area.cat--record-reaction .scene-sparkle { animation: sparklePop 1.05s ease-out; }
 .cat-card.cat--record-reaction .speech-box, .cat-card.cat--gift-reaction .speech-box { animation: speechPop .65s ease-out; }
-.cat-card.cat--gift-reaction { animation: roomFocus 1.4s ease-out; }
-.cat-card.cat--gift-reaction .cat-character--main { animation: catGiftResponse 1.25s ease-out; }
-.cat-card.cat--gift-reaction .cat-reaction { animation: reactionPop 1.15s ease-out; }
-.cat-card.cat--gift-reaction .scene-sparkle { animation: sparklePop 1s ease-out; }
-.cat-card.cat--gift-reaction .css-cat-tail { animation: catTailHappy .2s ease-in-out 5 alternate; }
-.cat-card.cat--gift-reaction .cat-character--friend { animation: friendGiftBounce .8s ease-out; }
-.cat-card.cat--new-friend .cat-character--friend { animation: kuroEnter 1.5s ease-out; }
+.cat-card.cat--gift-reaction, .cat-sticky-area.cat--gift-reaction { animation: roomFocus 1.4s ease-out; }
+.cat-card.cat--gift-reaction .cat-character--main, .cat-sticky-area.cat--gift-reaction .cat-character--main { animation: catGiftResponse 1.25s ease-out; }
+.cat-card.cat--gift-reaction .cat-reaction, .cat-sticky-area.cat--gift-reaction .cat-reaction { animation: reactionPop 1.15s ease-out; }
+.cat-card.cat--gift-reaction .scene-sparkle, .cat-sticky-area.cat--gift-reaction .scene-sparkle { animation: sparklePop 1s ease-out; }
+.cat-card.cat--gift-reaction .css-cat-tail, .cat-sticky-area.cat--gift-reaction .css-cat-tail { animation: catTailHappy .2s ease-in-out 5 alternate; }
+.cat-card.cat--gift-reaction .cat-character--friend, .cat-sticky-area.cat--gift-reaction .cat-character--friend { animation: friendGiftBounce .8s ease-out; }
+.cat-card.cat--new-friend .cat-character--friend, .cat-sticky-area.cat--new-friend .cat-character--friend { animation: kuroEnter 1.5s ease-out; }
 
 @keyframes catNaturalIdle { 0%,16%,100% { transform: rotate(0) scale(1); opacity: 1; } 28% { transform: rotate(0) scale(1.008,.992); } 44% { transform: rotate(0) scale(.997,1.006); } 68% { transform: rotate(0) scale(1); } 74% { transform: rotate(-1.4deg) scale(1.004,.996); } 80% { transform: rotate(1deg) scale(1); } 86% { transform: rotate(0) scaleY(.985); opacity: .97; } 90% { transform: rotate(0) scale(1); opacity: 1; } }
 @keyframes shadowBreath { 0%,100% { opacity: .8; transform: scaleX(1); } 50% { opacity: .6; transform: scaleX(.94); } }
@@ -168,8 +173,8 @@ button { cursor: pointer; }
 .room-residents b { color: #2f3c39; }
 .room-residents > span { margin-left: 5px; color: var(--muted); }
 .new-cat-hint { margin: 10px 4px 0; color: var(--muted); font-size: .7rem; text-align: center; }
-.cat-card.cat--new-friend { animation: newFriendGlow 1.5s ease-out; }
-.cat-card.cat--new-friend .cat-reaction { animation: reactionPop 1.3s ease-out; }
+.cat-card.cat--new-friend, .cat-sticky-area.cat--new-friend { animation: newFriendGlow 1.5s ease-out; }
+.cat-card.cat--new-friend .cat-reaction, .cat-sticky-area.cat--new-friend .cat-reaction { animation: reactionPop 1.3s ease-out; }
 
 .goal-setup-card, .today-card, .bonus-card { margin-top: 28px; padding: 22px 18px; }
 .goal-setup-card h2, .today-card h2, .bonus-card h2 { margin: 2px 0 4px; font-size: 1.22rem; }
@@ -231,7 +236,9 @@ button:focus-visible { outline: 3px solid rgba(79,150,133,.3); outline-offset: 3
 
 @media (max-width: 390px) {
   .app-shell { padding-inline: 12px; }
-  .cat-card { min-height: 420px; padding-inline: 12px; }
+  .cat-sticky-area { top: calc(6px + env(safe-area-inset-top)); margin-inline: -2px; padding: 6px; border-radius: 24px 24px 19px 19px; }
+  .cat-sticky-area .cat-scene { height: clamp(172px,55vw,218px); border-radius: 21px 21px 16px 16px; }
+  .cat-card { min-height: 0; padding-inline: 12px; }
   .cat-stage.has-companion .cat-character--main { --cat-x: -18px; --cat-scale: .82; }
   .cat-character--friend { --cat-x: 6px; --cat-scale: .76; }
   .css-cat { transform-origin: center bottom; }
@@ -243,7 +250,8 @@ button:focus-visible { outline: 3px solid rgba(79,150,133,.3); outline-offset: 3
 }
 @media (min-width: 600px) {
   .app-shell { padding: 52px 24px 76px; }
-  .cat-card { grid-template-columns: minmax(0,1fr); min-height: 330px; padding: 28px 27px 23px; }
+  .cat-sticky-area { top: calc(14px + env(safe-area-inset-top)); padding: 10px; }
+  .cat-card { grid-template-columns: minmax(0,1fr); min-height: 0; padding: 22px 27px 23px; }
   .css-cat { width: 104px; height: 116px; }
   .record-form { grid-template-columns: 1fr 1fr; }
   .record-form label:last-of-type, .record-button { grid-column: 1 / -1; }

@@ -27,6 +27,7 @@ const ITEMS = {
 
 const elements = {
   catCard: document.querySelector("#catCompanion"),
+  catStickyArea: document.querySelector("#catStickyArea"),
   roomBackgroundImage: document.querySelector("#room-background-image"),
   catStage: document.querySelector("#cat-stage"),
   catImage: document.querySelector("#cat-image"),
@@ -236,6 +237,7 @@ function renderCat(forceNewLine = false) {
   const state = getCatState();
   const distance = getAffectionState();
   elements.catCard.className = `cat-card ${state.className} ${distance.className}`.trim();
+  elements.catStickyArea.className = `cat-sticky-area ${state.className} ${distance.className}`.trim();
   elements.catStatus.textContent = state.label;
   elements.catName.textContent = mainCatName;
   elements.catImage.alt = `茶トラ猫の${mainCatName}`;
@@ -262,13 +264,14 @@ function renderCatNaming() {
 
 function triggerCatReaction(className, symbol) {
   clearTimeout(reactionTimer);
-  elements.catCard.classList.remove("cat--record-reaction", "cat--gift-reaction", "cat--new-friend");
-  void elements.catCard.offsetWidth;
+  const reactionTargets = [elements.catCard, elements.catStickyArea].filter(Boolean);
+  reactionTargets.forEach((target) => target.classList.remove("cat--record-reaction", "cat--gift-reaction", "cat--new-friend"));
+  void elements.catStickyArea.offsetWidth;
   elements.catReaction.textContent = symbol;
-  elements.catCard.classList.add(className);
+  reactionTargets.forEach((target) => target.classList.add(className));
   const duration = className === "cat--new-friend" ? 1700 : className === "cat--gift-reaction" ? 1500 : 1200;
   reactionTimer = setTimeout(() => {
-    elements.catCard.classList.remove(className);
+    reactionTargets.forEach((target) => target.classList.remove(className));
   }, duration);
 }
 
@@ -309,7 +312,11 @@ function prefersReducedMotion() {
 
 function focusCatAfterGift() {
   const reduceMotion = prefersReducedMotion();
-  elements.catCard.scrollIntoView({
+  const target = elements.catStickyArea || elements.catCard;
+  const rect = target.getBoundingClientRect();
+  const stickyTop = 24 + (window.visualViewport ? window.visualViewport.offsetTop : 0);
+  if (!reduceMotion && rect.top >= stickyTop && rect.top < window.innerHeight * 0.45) return;
+  target.scrollIntoView({
     behavior: reduceMotion ? "auto" : "smooth",
     block: reduceMotion ? "nearest" : "start"
   });
