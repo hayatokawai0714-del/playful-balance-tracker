@@ -28,6 +28,53 @@ const ITEMS = {
   toy: { name: "おもちゃ", icon: "🧶", affection: 5, replies: { low: ["これ、なに？", "……ちょん。", "少しだけ、あそぶ。"], mid: ["あそぶ？", "……もう一回。", "ころころ、たのしい。"], high: ["いっしょに、あそぼ。", "もう一回！", "これ、だいすき。"] } }
 };
 
+const CAT_DIALOGUE = {
+  unnamed: {
+    default: ["……だれ？", "こっち見てる", "まだ、ちょっと遠い", "……にゃ", "その手、なに？", "ゆっくり、ね", "ここから見る", "ふしぎなひと", "えっと……", "近くは、まだ"],
+    calm: ["名前は、まだない", "そっと、見てる", "むりはしない", "ここ、見える", "もう少し、まって", "ひかえめに、にゃ", "わるくない距離", "まだ、決めない", "ちいさく、あいさつ", "ふわっと、いる"]
+  },
+  named: {
+    default: ["それ、ぼくの名前？", "……呼ばれるの、変な感じ", "もう一回、呼んで", "その名前、きらいじゃない", "名前、覚えたよ", "ちょっと、うれしい", "ねえ、聞こえた", "名前があるって、いいね", "呼んでくれる？", "そっと、よんで"],
+    special: ["その名前、好き", "呼ぶと、耳が動く", "名前、うれしい", "もう、慣れてきた", "呼ばれるの、いいね", "ふわっと、近づく", "名前で、わかる", "ちいさな特別", "それ、ぼくだよ", "ちょっと、自慢"]
+  },
+  affection: {
+    0: ["……だれ？", "こっち見てる", "まだ、ちょっと遠い", "……にゃ", "その手、なに？", "ゆっくり、ね", "ここから見る", "ふしぎなひと", "えっと……", "近くは、まだ"],
+    20: ["また来たの？", "今日はなにするの？", "少しだけ、見てる", "近づいてもいい？", "ここ、あったかいね", "ゆっくりなら、いい", "気になる、かも", "まだ少し、遠い", "でも、気になる", "そっと、近く"],
+    40: ["待ってた……かも", "今日は記録する？", "がんばるなら、見てるよ", "ちょっとだけ近くにいる", "その調子、悪くないね", "名前、考えてもいいかも", "今日は静かだね", "少し、慣れてきた", "近くでも、平気", "うん、見てる"],
+    60: ["待ってたよ", "今日も来たね", "がんばったら、なでてもいいよ", "ここ、落ち着く", "きみの足音、覚えたよ", "近くにいると、安心", "今日も、いい匂い", "ちゃんと見てる", "ねえ、もう少し", "気に入ってる"],
+    80: ["今日もがんばったね", "そばにいるよ", "えらいえらい", "毎日来てくれて、うれしい", "ここ、もうお気に入り", "きみが来ると、落ち着く", "今日も、待ってた", "なでてもいい気分", "ずっと一緒でもいい", "ほんとに、うれしい"]
+  },
+  record: {
+    none: ["今日は、まだかな", "記録、待ってる", "ここで、見てる", "ゆっくりでいい", "最初の一歩、かな", "静かな朝だね", "なにを残すのかな", "まだ白い日", "今日も、これから", "ふわっと、待機"],
+    first: ["今日もがんばったね。", "えらいえらい。", "また、来てくれた。", "記録、見たよ", "今日のぶん、えらい", "ちゃんと覚えた", "ひとつ、進んだ", "いい感じ", "また一歩", "見てたよ"],
+    repeat: ["もう一回、えらい", "ちょっとだけ、にっこり", "続けてるね", "ふたつめの足あと", "今日のぶん、増えた", "まだ、がんばる？", "記録が増えた", "おなじ日も、いいね", "こまめだね", "ていねいだね"],
+    streak: ["今日は、えらい。", "つづいてる、えらいえらい", "今日も、ここにいる。", "毎日、すごい", "ならんで、見てる", "しっぽが、うれしい", "ここまで、よく来た", "続けるの、知ってる", "いい流れだね", "今日も、合格"],
+    return: ["おかえり", "また会えた", "少し、さみしかった", "でも、来た", "におい、覚えてる", "ここは、変わらない", "やっと、見つけた", "足音、うれしい", "帰ってきたね", "おかえりの、にゃ"]
+  },
+  gift: {
+    food: ["……たべる。", "少し離れて、もぐもぐ。", "これ、すきかも。", "おなか、ぺこり。", "そっと、いただく。", "あったかいにおい。", "ふつうに、うれしい。", "ゆっくり食べる。", "お皿、見てた。", "ちゃんと、たべるね。", "食べると、落ち着く。", "すこし、安心。"],
+    snack: ["にゃ……♪", "また、くれる？", "これ、すき。", "ちょっと、ごほうび。", "今日のぶん、うれしい。", "しっぽ、ゆらゆら。", "甘いの、いいね。", "もうひとつ、ほしいな。", "だんだん、うれしい。", "おやつの音、すき。", "きみといると、あまい。", "ごほうび、うれしいね。"],
+    toy: ["これ、なに？", "……ちょん。", "少しだけ、あそぶ。", "ふしぎな、ゆれ。", "見てるだけでも、気になる。", "ひも、かな。", "ころん、とした。", "ちょっとだけ、追いかける。", "むずむず、する。", "動くと、気になる。", "もっと、こっち。", "今日は、いっぱい追いかける。"]
+  },
+  kuro: [
+    "……ここ、静かでいい",
+    "先にいた猫が、ここなら大丈夫って",
+    "あったかい場所、見つけた",
+    "少しだけ、見てる",
+    "……悪くないね",
+    "ふーん、落ち着く",
+    "ここ、気に入るかも",
+    "ひかえめに、いる",
+    "においは、やさしい",
+    "……まあ、ありだね",
+    "座るなら、ここ",
+    "先住、悪くなさそう",
+    "だんだん、慣れる",
+    "ここなら、ねむれそう",
+    "……また来る"
+  ]
+};
+
 const elements = {
   catCard: document.querySelector("#catCompanion"),
   catStickyArea: document.querySelector("#catStickyArea"),
@@ -207,18 +254,18 @@ function getAffectionState() {
 }
 
 function getLineCandidates() {
-  if (daysAway >= 10) return ["……また来たら、顔を出すかも。", "足音がしたら、戻ってくるかも。", "少し遠くから、見てる。"];
-  if (daysAway >= 7) return ["……物陰から、ちらり。", "まだ、ここにいるよ。", "静かになったら出る。"];
-  if (daysAway >= 3) return ["……しばらく見なかったね。", "ふん。今日はいるんだ。", "少しだけ、待ってた。"];
   const todayDone = getUniqueRecordDates().includes(getLocalDate());
   const streak = getStreak();
-  if (todayDone && streak >= 7) return ["こつこつ。えらい、にゃ。", "つづいてる。ごろごろ。", "今日も、ここにいる。"];
-  if (todayDone) return ["今日もがんばったね。", "おつかれ、にゃ。", "ちゃんと見てた。"];
-  if (affection >= 80) return ["今日も、いっしょ。", "ここで待ってる。", "なでても、いいよ。"];
-  if (affection >= 60) return ["待ってたよ。", "今日は、なにする？", "となり、あいてる。"];
-  if (affection >= 40) return ["今日はなにするの？", "また、記録する？", "ここで見てる。"];
-  if (affection >= 20) return ["また来たの？", "……ちょっと近い。", "なにか、する？"];
-  return ["……だれ？", "……にゃ。", "じーっ。"];
+  if (daysAway >= 10) return CAT_DIALOGUE.record.return;
+  if (daysAway >= 7) return ["……物陰から、ちらり。", "まだ、ここにいるよ。", "静かになったら出る。", "ここで、待つだけ", "風の音、聞こえる", "ひさしぶりでも、平気", "見つかるといいな", "そろそろ、顔を出す", "まだ、しずか", "先に、のびる"];
+  if (daysAway >= 3) return ["……しばらく見なかったね。", "ふん。今日はいるんだ。", "少しだけ、待ってた。", "ちょっと、さみしかった", "戻ってきたなら、よし", "ここ、覚えてる？", "うん、見えてる", "少し、あたたかい", "今日は、早いね", "まあ、いいか"];
+  if (todayDone && streak >= 7) return CAT_DIALOGUE.record.streak;
+  if (todayDone) return CAT_DIALOGUE.record.first;
+  if (affection >= 80) return CAT_DIALOGUE.affection[80];
+  if (affection >= 60) return CAT_DIALOGUE.affection[60];
+  if (affection >= 40) return CAT_DIALOGUE.affection[40];
+  if (affection >= 20) return CAT_DIALOGUE.affection[20];
+  return localStorage.getItem(KEYS.catName) ? CAT_DIALOGUE.named.default : CAT_DIALOGUE.unnamed.default;
 }
 
 function chooseCatLine(forceNew = false) {
@@ -231,7 +278,7 @@ function chooseCatLine(forceNew = false) {
 }
 
 function chooseKuroLine() {
-  const candidates = ["……ここ、あったかい。", `${mainCatName}が、ここなら安心って。`, "少しだけ、いてもいい？"];
+  const candidates = CAT_DIALOGUE.kuro;
   const previous = localStorage.getItem(KEYS.lastLine);
   const pool = candidates.filter((line) => line !== previous);
   const line = pool[Math.floor(Math.random() * pool.length)] || candidates[0];
@@ -309,7 +356,11 @@ function showSecondCatEvent() {
 function getGiftReply(item) {
   const level = affection >= 70 ? "high" : affection >= 30 ? "mid" : "low";
   const replies = item.replies[level];
-  return replies[Math.floor(Math.random() * replies.length)];
+  const previous = localStorage.getItem(KEYS.lastLine);
+  const pool = replies.filter((line) => line !== previous);
+  const line = pool[Math.floor(Math.random() * pool.length)] || replies[0];
+  localStorage.setItem(KEYS.lastLine, line);
+  return line;
 }
 
 function prefersReducedMotion() {
@@ -526,6 +577,7 @@ elements.catNameForm.addEventListener("submit", (event) => {
   elements.catNameForm.hidden = true;
   renderCat(true);
   elements.speechName.textContent = mainCatName;
+  elements.catLine.textContent = CAT_DIALOGUE.named.special[Math.floor(Math.random() * CAT_DIALOGUE.named.special.length)];
   elements.catNameMessage.textContent = "名前を保存しました。";
 });
 
@@ -568,9 +620,18 @@ elements.recordForm.addEventListener("submit", (event) => {
   if (unlockedSecondCat) {
     showSecondCatEvent();
   } else {
-    elements.catLine.textContent = receivesAffection
-      ? "今日もがんばったね。少し近づいた気がする。"
-      : "また記録したんだ。えらいね。";
+    const recordPool = !getUniqueRecordDates().includes(today)
+      ? CAT_DIALOGUE.record.none
+      : getStreak() >= 7
+        ? CAT_DIALOGUE.record.streak
+        : receivesAffection
+          ? CAT_DIALOGUE.record.first
+          : CAT_DIALOGUE.record.repeat;
+    const previous = localStorage.getItem(KEYS.lastLine);
+    const pool = recordPool.filter((line) => line !== previous);
+    const line = pool[Math.floor(Math.random() * pool.length)] || recordPool[0];
+    localStorage.setItem(KEYS.lastLine, line);
+    elements.catLine.textContent = line;
     elements.speechName.textContent = mainCatName;
     triggerCatReaction("cat--record-reaction", "✦");
   }
