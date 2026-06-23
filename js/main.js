@@ -16,7 +16,10 @@ const KEYS = {
   catName: "neko-habit-main-cat-name"
 };
 
-const MAIN_CAT = { id: "midori", name: "ミドリ", type: "茶トラ", personality: "少し慎重", affection: 0, unlocked: true };
+const APP_TITLE = "NEKO-NOTE";
+const UNNAMED_CAT_LABEL = "？？？";
+const LEGACY_MAIN_CAT_NAME = "ミドリ";
+const MAIN_CAT = { id: "midori", name: UNNAMED_CAT_LABEL, type: "茶トラ", personality: "少し慎重", affection: 0, unlocked: true };
 const SECOND_CAT = { id: "kuro", name: "クロ", type: "黒猫", personality: "少しクール", affection: 0, unlocked: true };
 
 const ITEMS = {
@@ -89,8 +92,11 @@ let cats = Array.isArray(loadedCats) ? loadedCats : [];
 let secondCatUnlocked = localStorage.getItem(KEYS.secondCatUnlocked) === "true" || cats.some((cat) => cat.id === SECOND_CAT.id);
 if (!cats.some((cat) => cat.id === MAIN_CAT.id)) cats.unshift({ ...MAIN_CAT, affection });
 if (secondCatUnlocked && !cats.some((cat) => cat.id === SECOND_CAT.id)) cats.push({ ...SECOND_CAT });
-const savedMainCatName = String(localStorage.getItem(KEYS.catName) || cats.find((cat) => cat.id === MAIN_CAT.id)?.name || MAIN_CAT.name).trim();
-let mainCatName = [...savedMainCatName].slice(0, 10).join("") || MAIN_CAT.name;
+const savedMainCatName = localStorage.getItem(KEYS.catName);
+let mainCatName = savedMainCatName ? [...String(savedMainCatName).trim()].slice(0, 10).join("") : UNNAMED_CAT_LABEL;
+if (!mainCatName) mainCatName = UNNAMED_CAT_LABEL;
+if (mainCatName === LEGACY_MAIN_CAT_NAME) mainCatName = UNNAMED_CAT_LABEL;
+document.title = APP_TITLE;
 const previousLogin = localStorage.getItem(KEYS.lastLogin);
 const storedAbsenceDays = Number(localStorage.getItem(KEYS.absenceDays)) || 0;
 let daysAway = Math.max(storedAbsenceDays, previousLogin ? daysBetween(previousLogin, getLocalDate()) : 0);
@@ -255,8 +261,8 @@ function renderCatNaming() {
   const canName = affection >= 40;
   const hasCustomName = Boolean(localStorage.getItem(KEYS.catName));
   elements.catNameHint.textContent = canName
-    ? "少しなついてきました。名前をつけてあげられます"
-    : "もう少し仲良くなったら、名前をつけられます";
+    ? "名前をつけられます。すてきな名前を入力してください。"
+    : "もう少し仲良くなったら、名前をつけられます。";
   elements.catNameEditButton.hidden = !canName;
   elements.catNameEditButton.textContent = hasCustomName ? "名前を変更" : "名前をつける";
   if (!canName) elements.catNameForm.hidden = true;
